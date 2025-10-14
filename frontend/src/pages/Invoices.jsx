@@ -17,20 +17,11 @@ import api from '../lib/api';
 export default function Invoices() {
   const navigate = useNavigate();
   const [invoices, setInvoices] = useState([]);
-  const [clients, setClients] = useState([]);
-  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
-  const [formData, setFormData] = useState({
-    client_id: '',
-    project_id: '',
-    amount: '',
-    due_date: ''
-  });
 
   useEffect(() => {
     fetchInvoices();
