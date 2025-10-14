@@ -176,6 +176,57 @@ export default function InvoiceDetail() {
           </Card>
         </motion.div>
       </div>
+
+      {/* Line Items Section */}
+      {invoice.line_items && invoice.line_items.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.24, delay: 0.2 }}>
+          <Card className="p-6 bg-[color:var(--bg-elevated)] border-[color:var(--border-default)] shadow-[var(--shadow-soft)]">
+            <h2 className="text-lg font-semibold mb-4" style={{ fontFamily: 'Space Grotesk' }}>Line Items</h2>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[color:var(--border-default)]">
+                    <th className="text-left py-3 px-2 text-sm font-semibold text-[color:var(--fg-secondary)]">Description</th>
+                    <th className="text-right py-3 px-2 text-sm font-semibold text-[color:var(--fg-secondary)]">Unit Price</th>
+                    <th className="text-right py-3 px-2 text-sm font-semibold text-[color:var(--fg-secondary)]">Quantity</th>
+                    <th className="text-right py-3 px-2 text-sm font-semibold text-[color:var(--fg-secondary)]">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invoice.line_items.map((item, index) => (
+                    <tr key={index} className="border-b border-[color:var(--border-default)]/50">
+                      <td className="py-3 px-2 text-[color:var(--fg-primary)]">{item.description}</td>
+                      <td className="py-3 px-2 text-right text-[color:var(--fg-secondary)]">€{item.unit_price.toFixed(2)}</td>
+                      <td className="py-3 px-2 text-right text-[color:var(--fg-secondary)]">{item.quantity}</td>
+                      <td className="py-3 px-2 text-right font-medium text-[color:var(--fg-primary)]">€{item.total.toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-6 space-y-2 border-t border-[color:var(--border-default)] pt-4">
+              <div className="flex justify-between items-center">
+                <span className="text-[color:var(--fg-secondary)]">Subtotal</span>
+                <span className="text-[color:var(--fg-primary)] font-medium">€{(invoice.subtotal || 0).toFixed(2)}</span>
+              </div>
+              
+              {invoice.tva_rate > 0 && (
+                <div className="flex justify-between items-center">
+                  <span className="text-[color:var(--fg-secondary)]">TVA ({invoice.tva_rate}%)</span>
+                  <span className="text-[color:var(--fg-primary)] font-medium">€{(invoice.tva_amount || 0).toFixed(2)}</span>
+                </div>
+              )}
+              
+              <div className="flex justify-between items-center pt-2 border-t border-[color:var(--primary)]">
+                <span className="text-lg font-bold text-[color:var(--fg-primary)]">Total</span>
+                <span className="text-2xl font-bold text-[color:var(--primary)]">€{(invoice.total || 0).toFixed(2)}</span>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+      )}
     </div>
   );
 }
