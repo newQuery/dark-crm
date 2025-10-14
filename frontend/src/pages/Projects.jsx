@@ -285,52 +285,6 @@ export default function Projects() {
         </Table>
       </Card>
 
-      {/* View Dialog */}
-      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)] sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-[color:var(--fg-primary)]">Project Details</DialogTitle>
-          </DialogHeader>
-          {selectedProject && (
-            <div className="space-y-4">
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Title</Label>
-                <p className="text-[color:var(--fg-primary)] font-medium">{selectedProject.title}</p>
-              </div>
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Client</Label>
-                <p className="text-[color:var(--fg-primary)]">{selectedProject.client_name || 'N/A'}</p>
-              </div>
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Status</Label>
-                <div className="mt-1">
-                  <Badge className={getStatusColor(selectedProject.status)}>
-                    {selectedProject.status}
-                  </Badge>
-                </div>
-              </div>
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Total Value</Label>
-                <p className="text-[color:var(--fg-primary)] font-medium">${selectedProject.total_value.toLocaleString()}</p>
-              </div>
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Deadline</Label>
-                <p className="text-[color:var(--fg-primary)]">
-                  {selectedProject.deadline ? new Date(selectedProject.deadline).toLocaleDateString() : 'No deadline'}
-                </p>
-              </div>
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Created</Label>
-                <p className="text-[color:var(--fg-primary)]">{new Date(selectedProject.created_at).toLocaleString()}</p>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setViewDialogOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)] sm:max-w-lg">
