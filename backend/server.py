@@ -163,6 +163,8 @@ class Invoice(BaseModel):
     issued_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     paid_at: Optional[datetime] = None
     stripe_payment_intent_id: Optional[str] = None
+    stripe_checkout_session_id: Optional[str] = None
+    payment_link: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
