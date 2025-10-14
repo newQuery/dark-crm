@@ -115,11 +115,6 @@ export default function Projects() {
     setEditDialogOpen(true);
   };
 
-  const openViewDialog = (project) => {
-    setSelectedProject(project);
-    setViewDialogOpen(true);
-  };
-
   const openDeleteDialog = (project) => {
     setSelectedProject(project);
     setDeleteDialogOpen(true);
