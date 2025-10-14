@@ -1,7 +1,7 @@
 [
   {
     "content": "Backend: Add deliverables API endpoints (add, list, delete deliverables for projects)",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Backend: Install reportlab and add PDF invoice generation endpoint",
