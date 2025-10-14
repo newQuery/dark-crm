@@ -16,10 +16,6 @@ export default function PayInvoice() {
   const [loading, setLoading] = useState(true);
   const [generatingLink, setGeneratingLink] = useState(false);
 
-  useEffect(() => {
-    fetchInvoice();
-  }, [invoice_id, fetchInvoice]);
-
   const fetchInvoice = useCallback(async () => {
     try {
       const response = await fetch(`${API_URL}/api/invoices/${invoice_id}/public`);
@@ -32,6 +28,10 @@ export default function PayInvoice() {
       setLoading(false);
     }
   }, [invoice_id]);
+
+  useEffect(() => {
+    fetchInvoice();
+  }, [fetchInvoice]);
 
   const handlePayNow = async () => {
     // Check if invoice is already paid (refresh data first)
