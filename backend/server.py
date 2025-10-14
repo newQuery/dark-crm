@@ -1334,9 +1334,9 @@ async def stripe_webhook(request: dict):
 
 @api_router.get("/metrics", response_model=Metrics)
 async def get_metrics(current_user: User = Depends(get_current_user)):
-    # Total revenue (sum of paid invoices)
-    paid_invoices = await db.invoices.find({"status": "paid"}, {"_id": 0, "amount": 1}).to_list(1000)
-    total_revenue = sum(inv['amount'] for inv in paid_invoices)
+    # Total revenue (sum of paid invoices) - handle both old (amount) and new (total) field names
+    paid_invoices = await db.invoices.find({"status": "paid"}, {"_id": 0, "amount": 1, "total": 1}).to_list(1000)
+    total_revenue = sum(inv.get('total', inv.get('amount', 0)) for inv in paid_invoices)
     
     # Active projects
     active_projects = await db.projects.count_documents({"status": "active"})
