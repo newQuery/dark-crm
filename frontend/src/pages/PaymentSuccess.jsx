@@ -16,10 +16,40 @@ export default function PaymentSuccess() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (invoice_id) {
+    if (invoice_id && session_id) {
+      verifyPaymentAndFetchInvoice();
+    } else if (invoice_id) {
       fetchInvoice();
     }
-  }, [invoice_id]);
+  }, [invoice_id, session_id]);
+
+  const verifyPaymentAndFetchInvoice = async () => {
+    try {
+      // First, verify the payment with Stripe
+      const verifyResponse = await fetch(
+        `${API_URL}/api/invoices/${invoice_id}/verify-payment?session_id=${session_id}`,
+        { method: 'POST' }
+      );
+      
+      if (verifyResponse.ok) {
+        const verifyData = await verifyResponse.json();
+        if (verifyData.status === 'paid') {
+          toast.success('Payment verified successfully!');
+        }
+      }
+      
+      // Then fetch the updated invoice
+      const response = await fetch(`${API_URL}/api/invoices/${invoice_id}/public`);
+      if (!response.ok) throw new Error('Failed to fetch invoice');
+      const data = await response.json();
+      setInvoice(data);
+    } catch (error) {
+      console.error('Failed to verify payment or fetch invoice:', error);
+      toast.error('Failed to verify payment');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchInvoice = async () => {
     try {
