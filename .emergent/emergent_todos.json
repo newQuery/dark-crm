@@ -12,20 +12,8 @@
     "status": "completed"
   },
   {
-    "content": "Test ProjectDetail deliverables functionality (add, list, download, delete)",
-    "status": "in_progress"
-  },
-  {
-    "content": "Test InvoiceDetail PDF download functionality",
-    "status": "pending"
-  },
-  {
-    "content": "Test all detail pages navigation and data display",
-    "status": "pending"
-  },
-  {
     "content": "Run comprehensive testing via testing_agent_v3",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Fix any bugs identified by testing agent",
