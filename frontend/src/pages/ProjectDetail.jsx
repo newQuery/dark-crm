@@ -282,7 +282,7 @@ export default function ProjectDetail() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => window.open(`${process.env.REACT_APP_BACKEND_URL}/api/deliverables/download/${deliverable.id}`, '_blank')}
+                        onClick={() => handleDownloadDeliverable(deliverable)}
                         className="hover:bg-white/10"
                         data-testid={`download-deliverable-${deliverable.id}`}
                       >
