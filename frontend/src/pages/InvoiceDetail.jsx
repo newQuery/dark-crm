@@ -65,6 +65,25 @@ export default function InvoiceDetail() {
     }
   };
 
+  const handleGeneratePaymentLink = async () => {
+    setGeneratingLink(true);
+    try {
+      const response = await api.post(`/invoices/${id}/payment-link`);
+      setInvoice({ ...invoice, payment_link: response.data.payment_link });
+      toast.success('Payment link generated successfully');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to generate payment link');
+    } finally {
+      setGeneratingLink(false);
+    }
+  };
+
+  const handleCopyPaymentLink = () => {
+    const paymentUrl = `${window.location.origin}/pay/${id}`;
+    navigator.clipboard.writeText(paymentUrl);
+    toast.success('Payment link copied to clipboard');
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'paid': return 'bg-[color:var(--success)]/10 text-[color:var(--success)] border-[color:var(--success)]/20';
