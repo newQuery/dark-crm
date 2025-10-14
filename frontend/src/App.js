@@ -75,6 +75,26 @@ export default function App() {
             }
           />
           <Route
+            path="/invoices/create"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <CreateInvoice />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/invoices/:id"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <InvoiceDetail />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/payments"
             element={
               <ProtectedRoute>
