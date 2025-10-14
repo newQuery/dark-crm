@@ -243,42 +243,6 @@ export default function Clients() {
         </Table>
       </Card>
 
-      {/* View Dialog */}
-      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)] sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-[color:var(--fg-primary)]">Client Details</DialogTitle>
-          </DialogHeader>
-          {selectedClient && (
-            <div className="space-y-4">
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Name</Label>
-                <p className="text-[color:var(--fg-primary)] font-medium">{selectedClient.name}</p>
-              </div>
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Email</Label>
-                <p className="text-[color:var(--fg-primary)]">{selectedClient.email}</p>
-              </div>
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Company</Label>
-                <p className="text-[color:var(--fg-primary)]">{selectedClient.company || 'N/A'}</p>
-              </div>
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Phone</Label>
-                <p className="text-[color:var(--fg-primary)]">{selectedClient.phone || 'N/A'}</p>
-              </div>
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Created</Label>
-                <p className="text-[color:var(--fg-primary)]">{new Date(selectedClient.created_at).toLocaleString()}</p>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setViewDialogOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)] sm:max-w-lg">
