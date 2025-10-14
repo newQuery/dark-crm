@@ -7,9 +7,13 @@ import { Toaster } from './components/ui/sonner';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Projects from './pages/Projects';
+import ProjectDetail from './pages/ProjectDetail';
 import Clients from './pages/Clients';
+import ClientDetail from './pages/ClientDetail';
 import Invoices from './pages/Invoices';
+import InvoiceDetail from './pages/InvoiceDetail';
 import Payments from './pages/Payments';
+import PaymentDetail from './pages/PaymentDetail';
 import './App.css';
 
 const AppLayout = ({ children }) => (
