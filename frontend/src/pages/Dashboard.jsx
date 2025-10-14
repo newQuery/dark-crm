@@ -47,6 +47,14 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchDashboardData();
+    
+    // Set up polling for real-time updates every 15 seconds
+    const intervalId = setInterval(() => {
+      fetchDashboardData();
+    }, 15000);
+    
+    // Cleanup interval on unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const fetchDashboardData = async () => {
