@@ -1,26 +1,30 @@
 [
   {
-    "content": "Refactor Invoices.jsx: Update View button to navigate to /invoices/:id and remove View Dialog",
-    "status": "completed"
+    "content": "Update backend: Create uploads directory and add file upload endpoint",
+    "status": "in_progress"
   },
   {
-    "content": "Refactor Payments.jsx: Update View button to navigate to /payments/:id and remove View Dialog",
-    "status": "completed"
+    "content": "Update backend: Modify deliverables API to handle file uploads",
+    "status": "pending"
   },
   {
-    "content": "Verify frontend compiles without errors",
-    "status": "completed"
+    "content": "Update backend: Add file download endpoint",
+    "status": "pending"
   },
   {
-    "content": "Run comprehensive testing via testing_agent_v3",
-    "status": "completed"
+    "content": "Update frontend: Replace URL input with file input in ProjectDetail",
+    "status": "pending"
   },
   {
-    "content": "Take screenshots to verify UI appearance",
-    "status": "completed"
+    "content": "Update frontend: Modify deliverable creation to use FormData",
+    "status": "pending"
   },
   {
-    "content": "Update plan.md to mark Phase 4 as COMPLETED",
-    "status": "completed"
+    "content": "Test file upload functionality with different file types",
+    "status": "pending"
+  },
+  {
+    "content": "Update plan.md with file upload feature",
+    "status": "pending"
   }
 ]
