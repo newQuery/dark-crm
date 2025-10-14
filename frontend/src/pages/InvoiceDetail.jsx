@@ -117,6 +117,18 @@ export default function InvoiceDetail() {
           </div>
           <div className="flex items-center gap-3">
             <Badge className={getStatusColor(invoice.status)}>{invoice.status}</Badge>
+            {invoice.status !== 'paid' && !invoice.payment_link && (
+              <Button
+                onClick={handleGeneratePaymentLink}
+                disabled={generatingLink}
+                variant="outline"
+                className="gap-2"
+                data-testid="generate-payment-link-button"
+              >
+                <LinkIcon size={16} />
+                {generatingLink ? 'Generating...' : 'Generate Payment Link'}
+              </Button>
+            )}
             <Button
               onClick={handleDownloadPDF}
               disabled={downloading}
@@ -129,6 +141,32 @@ export default function InvoiceDetail() {
           </div>
         </div>
       </div>
+
+      {/* Payment Link Section */}
+      {invoice.payment_link && invoice.status !== 'paid' && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="p-4 bg-[color:var(--primary)]/10 border-[color:var(--primary)]/20">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <Label className="text-[color:var(--primary)] text-sm font-semibold">Client Payment Link</Label>
+                <p className="text-xs text-[color:var(--fg-secondary)] mt-1">
+                  {window.location.origin}/pay/{id}
+                </p>
+              </div>
+              <Button
+                onClick={handleCopyPaymentLink}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                data-testid="copy-payment-link-button"
+              >
+                <Copy size={14} />
+                Copy Link
+              </Button>
+            </div>
+          </Card>
+        </motion.div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.24 }}>
