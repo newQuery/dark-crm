@@ -1,0 +1,42 @@
+[
+  {
+    "content": "Install required frontend dependencies (recharts, framer-motion, @fontsource/space-grotesk, @fontsource/inter)",
+    "status": "pending"
+  },
+  {
+    "content": "Install required backend dependencies (stripe, python-jose[cryptography])",
+    "status": "pending"
+  },
+  {
+    "content": "Add Stripe API keys and JWT secret to backend .env file",
+    "status": "pending"
+  },
+  {
+    "content": "Build complete backend with JWT auth, MongoDB models, CRUD endpoints, Stripe integration, and seed data",
+    "status": "pending"
+  },
+  {
+    "content": "Create design tokens in index.css per design guidelines (CSS variables)",
+    "status": "pending"
+  },
+  {
+    "content": "Build complete frontend with app shell, routing, all pages (Login, Dashboard, Projects, Clients, Invoices, Payments), and API integration",
+    "status": "pending"
+  },
+  {
+    "content": "Restart backend and frontend services via supervisorctl",
+    "status": "pending"
+  },
+  {
+    "content": "Test frontend compilation with esbuild and check service logs",
+    "status": "pending"
+  },
+  {
+    "content": "Take screenshots and verify UI matches design guidelines",
+    "status": "pending"
+  },
+  {
+    "content": "Run comprehensive testing via testing agent",
+    "status": "pending"
+  }
+]
