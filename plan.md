@@ -101,12 +101,20 @@ Deliverables for Phase 1:
   - MVP: client polls activity/metrics every 10–20s
   - Enhancement: FastAPI WebSocket endpoint for push updates (activity + invoice state)
 
-### Phase 3 – Polish & Testing
+### Phase 3 – Full CRUD Actions & Entity Management (In Progress)
+
+Add complete action buttons for all entities:
+- View detail dialogs/pages
+- Edit/Update functionality with pre-filled forms
+- Delete actions with confirmation dialogs
+- Action buttons in all tables (Projects, Clients, Invoices, Payments)
+
+### Phase 4 – Polish & Testing
 - Testing agent run for end-to-end flows and API checks
 - UI refinements per design; accessibility checks; performance passes
 - Error boundary components + robust empty/loading visuals
 
-### Phase 4 – Enhancements (Optional/Post-MVP)
+### Phase 5 – Advanced Features (Future)
 - 2FA (time-based OTP) for admin user
 - Export/Import CSVs for invoices and clients
 - Multi-user roles & permissions
