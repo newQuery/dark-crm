@@ -239,15 +239,21 @@ export default function ProjectDetail() {
                   >
                     <div className="flex-1">
                       <p className="text-[color:var(--fg-primary)] font-medium">{deliverable.name}</p>
-                      <p className="text-xs text-[color:var(--fg-tertiary)] mt-1">
-                        Added {new Date(deliverable.uploaded_at).toLocaleDateString()}
-                      </p>
+                      <div className="flex items-center gap-3 mt-1">
+                        <p className="text-xs text-[color:var(--fg-secondary)]">{deliverable.filename}</p>
+                        <span className="text-xs text-[color:var(--fg-tertiary)]">•</span>
+                        <p className="text-xs text-[color:var(--fg-tertiary)]">{formatFileSize(deliverable.file_size)}</p>
+                        <span className="text-xs text-[color:var(--fg-tertiary)]">•</span>
+                        <p className="text-xs text-[color:var(--fg-tertiary)]">
+                          {new Date(deliverable.uploaded_at).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => window.open(deliverable.file_url, '_blank')}
+                        onClick={() => window.open(`${process.env.REACT_APP_BACKEND_URL}/api/deliverables/download/${deliverable.id}`, '_blank')}
                         className="hover:bg-white/10"
                         data-testid={`download-deliverable-${deliverable.id}`}
                       >
