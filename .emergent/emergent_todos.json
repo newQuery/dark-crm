@@ -1,19 +1,19 @@
 [
   {
     "content": "Backend: Add deliverables API endpoints (add, list, delete deliverables for projects)",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Backend: Install reportlab and add PDF invoice generation endpoint",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Backend: Update Project model to include deliverables array",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Frontend: Create ProjectDetail page with deliverables management UI",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Frontend: Create ClientDetail page",
