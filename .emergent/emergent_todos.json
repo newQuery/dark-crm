@@ -1,11 +1,11 @@
 [
   {
     "content": "Install required frontend dependencies (recharts, framer-motion, @fontsource/space-grotesk, @fontsource/inter)",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Install required backend dependencies (stripe, python-jose[cryptography])",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Add Stripe API keys and JWT secret to backend .env file",
