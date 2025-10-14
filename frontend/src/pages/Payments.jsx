@@ -184,6 +184,64 @@ export default function Payments() {
           </Table>
         </Card>
       )}
+
+      {/* View Payment Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)] sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-[color:var(--fg-primary)]">Payment Details</DialogTitle>
+          </DialogHeader>
+          {selectedPayment && (
+            <div className="space-y-4">
+              <div>
+                <Label className="text-[color:var(--fg-secondary)] text-sm">Client</Label>
+                <p className="text-[color:var(--fg-primary)] font-medium">{selectedPayment.client_name || 'N/A'}</p>
+              </div>
+              <div>
+                <Label className="text-[color:var(--fg-secondary)] text-sm">Amount</Label>
+                <p className="text-[color:var(--fg-primary)] font-medium text-lg">${selectedPayment.amount.toLocaleString()}</p>
+              </div>
+              <div>
+                <Label className="text-[color:var(--fg-secondary)] text-sm">Currency</Label>
+                <p className="text-[color:var(--fg-primary)] uppercase">{selectedPayment.currency}</p>
+              </div>
+              <div>
+                <Label className="text-[color:var(--fg-secondary)] text-sm">Status</Label>
+                <div className="mt-1">
+                  <Badge className={getStatusColor(selectedPayment.status)}>
+                    {selectedPayment.status}
+                  </Badge>
+                </div>
+              </div>
+              <div>
+                <Label className="text-[color:var(--fg-secondary)] text-sm">Transaction Date</Label>
+                <p className="text-[color:var(--fg-primary)]">{new Date(selectedPayment.created_at).toLocaleString()}</p>
+              </div>
+              {selectedPayment.stripe_payment_intent_id && (
+                <div>
+                  <Label className="text-[color:var(--fg-secondary)] text-sm">Stripe Payment Intent ID</Label>
+                  <p className="text-xs font-mono text-[color:var(--fg-tertiary)] break-all">{selectedPayment.stripe_payment_intent_id}</p>
+                </div>
+              )}
+              {selectedPayment.stripe_charge_id && (
+                <div>
+                  <Label className="text-[color:var(--fg-secondary)] text-sm">Stripe Charge ID</Label>
+                  <p className="text-xs font-mono text-[color:var(--fg-tertiary)] break-all">{selectedPayment.stripe_charge_id}</p>
+                </div>
+              )}
+              {selectedPayment.invoice_id && (
+                <div>
+                  <Label className="text-[color:var(--fg-secondary)] text-sm">Related Invoice</Label>
+                  <p className="text-[color:var(--fg-primary)]">{selectedPayment.invoice_id}</p>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setViewDialogOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
