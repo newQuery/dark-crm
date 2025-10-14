@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FolderKanban, Users2, FileText, CreditCard } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Users2, FileText, CreditCard, Users } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 const navItems = [
@@ -8,6 +8,7 @@ const navItems = [
   { icon: Users2, label: 'Clients', path: '/clients' },
   { icon: FileText, label: 'Invoices', path: '/invoices' },
   { icon: CreditCard, label: 'Payments', path: '/payments' },
+  { icon: Users, label: 'Users', path: '/users' },
 ];
 
 export const Sidebar = () => {
