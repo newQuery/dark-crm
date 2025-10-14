@@ -13,15 +13,15 @@
   },
   {
     "content": "Implement real-time polling on Dashboard (refresh metrics/activity every 15 seconds)",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Add WebSocket endpoint for real-time push updates (optional enhancement)",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Test webhook with Stripe CLI or test payment",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Verify real-time updates work correctly on Dashboard",
