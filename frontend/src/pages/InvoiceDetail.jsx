@@ -125,7 +125,7 @@ export default function InvoiceDetail() {
               <div>
                 <Label className="text-[color:var(--fg-secondary)] text-sm">Amount</Label>
                 <p className="text-[color:var(--fg-primary)] font-bold text-3xl" style={{ fontFamily: 'Space Grotesk' }}>
-                  ${invoice.amount.toLocaleString()}
+                  €{(invoice.total || invoice.amount || 0).toLocaleString()}
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-4">
