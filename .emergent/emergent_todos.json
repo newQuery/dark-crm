@@ -1,34 +1,34 @@
 [
   {
     "content": "Add User CRUD backend endpoints",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Add generate random password endpoint",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Create Users.jsx list page",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Create CreateUser.jsx page (without password)",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Create UserDetail.jsx with password generation",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Update App.js routing for users",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Update Sidebar navigation to include Users",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Test Users CRUD flow",
-    "status": "pending"
+    "status": "completed"
   }
 ]
