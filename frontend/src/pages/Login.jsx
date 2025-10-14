@@ -85,7 +85,7 @@ export default function Login() {
               type="submit"
               disabled={loading}
               data-testid="login-submit-button"
-              className="w-full bg-[color:var(--primary)] text-black hover:bg-emerald-400 font-medium"
+              className="w-full bg-emerald-500 text-black hover:bg-emerald-400 font-medium shadow-lg shadow-emerald-500/20"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>
