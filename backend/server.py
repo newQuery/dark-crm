@@ -967,6 +967,193 @@ async def delete_invoice(invoice_id: str, current_user: User = Depends(get_curre
 
 @api_router.get("/invoices/{invoice_id}/pdf")
 async def generate_invoice_pdf(invoice_id: str, current_user: User = Depends(get_current_user)):
+    """Generate a professional PDF invoice with line items and TVA"""
+    # Get invoice
+    invoice = await db.invoices.find_one({"id": invoice_id}, {"_id": 0})
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    # Get client
+    client = await db.clients.find_one({"id": invoice['client_id']}, {"_id": 0})
+    
+    # Get project if available
+    project = None
+    if invoice.get('project_id'):
+        project = await db.projects.find_one({"id": invoice['project_id']}, {"_id": 0})
+    
+    # Create PDF buffer
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=50, leftMargin=50, topMargin=50, bottomMargin=30)
+    
+    # Container for elements
+    elements = []
+    styles = getSampleStyleSheet()
+    
+    # Custom styles with modern typography
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=32,
+        textColor=colors.HexColor('#00C676'),
+        spaceAfter=20,
+        fontName='Helvetica-Bold',
+        letterHeight=1.2
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=11,
+        textColor=colors.HexColor('#6B7280'),
+        spaceAfter=6,
+        fontName='Helvetica-Bold',
+        letterSpacing=0.5
+    )
+    
+    normal_style = ParagraphStyle(
+        'CustomNormal',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.HexColor('#374151'),
+        leading=14
+    )
+    
+    # Add logo (use local dark version)
+    try:
+        logo_path = ROOT_DIR / 'logo-dark.png'
+        if logo_path.exists():
+            logo = Image(str(logo_path), width=2.2*inch, height=0.55*inch)
+            elements.append(logo)
+            elements.append(Spacer(1, 30))
+    except Exception as e:
+        print(f"Logo error: {e}")
+        pass
+    
+    # Invoice title and number
+    elements.append(Paragraph(f"INVOICE", title_style))
+    elements.append(Paragraph(f"<font size=14 color='#6B7280'>{invoice['number']}</font>", normal_style))
+    elements.append(Spacer(1, 25))
+    
+    # Two-column layout for invoice info and bill to
+    info_data = [
+        [
+            Paragraph("<b>INVOICE DATE</b><br/><font color='#6B7280'>" + datetime.fromisoformat(invoice['issued_date']).strftime('%B %d, %Y') + "</font>", normal_style),
+            Paragraph("<b>BILL TO</b><br/><font color='#111827'><b>" + (client['name'] if client else 'N/A') + "</b></font><br/><font color='#6B7280'>" + (client.get('company', '') if client else '') + "</font>", normal_style)
+        ],
+        [
+            Paragraph("<b>DUE DATE</b><br/><font color='#6B7280'>" + datetime.fromisoformat(invoice['due_date']).strftime('%B %d, %Y') + "</font>", normal_style),
+            Paragraph("<font color='#6B7280'>" + (client['email'] if client else '') + "<br/>" + (client.get('phone', '') if client else '') + "</font>", normal_style)
+        ]
+    ]
+    
+    info_table = Table(info_data, colWidths=[2.5*inch, 3.5*inch])
+    info_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+    ]))
+    elements.append(info_table)
+    elements.append(Spacer(1, 25))
+    
+    # Project info if available
+    if project:
+        elements.append(Paragraph(f"<b>PROJECT:</b> <font color='#6B7280'>{project['title']}</font>", normal_style))
+        elements.append(Spacer(1, 20))
+    
+    # Line items table
+    items_data = [
+        [
+            Paragraph("<b>DESCRIPTION</b>", normal_style),
+            Paragraph("<b>PRICE</b>", normal_style),
+            Paragraph("<b>QTY</b>", normal_style),
+            Paragraph("<b>TOTAL</b>", normal_style)
+        ]
+    ]
+    
+    # Add line items
+    for item in invoice.get('line_items', []):
+        items_data.append([
+            Paragraph(f"<font color='#111827'>{item['description']}</font>", normal_style),
+            Paragraph(f"<font color='#6B7280'>€{item['unit_price']:.2f}</font>", normal_style),
+            Paragraph(f"<font color='#6B7280'>{item['quantity']}</font>", normal_style),
+            Paragraph(f"<font color='#111827'><b>€{item['total']:.2f}</b></font>", normal_style)
+        ])
+    
+    items_table = Table(items_data, colWidths=[3*inch, 1.2*inch, 0.8*inch, 1.2*inch])
+    items_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#F9FAFB')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#111827')),
+        ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('TOPPADDING', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+        ('LINEBELOW', (0, 0), (-1, 0), 1.5, colors.HexColor('#E5E7EB')),
+        ('LINEBELOW', (0, -1), (-1, -1), 1, colors.HexColor('#E5E7EB')),
+        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+    ]))
+    elements.append(items_table)
+    elements.append(Spacer(1, 20))
+    
+    # Totals section
+    totals_data = []
+    
+    # Subtotal
+    totals_data.append([
+        Paragraph("<font color='#6B7280'>Subtotal</font>", normal_style),
+        Paragraph(f"<font color='#111827'>€{invoice.get('subtotal', 0):.2f}</font>", normal_style)
+    ])
+    
+    # TVA if applicable
+    if invoice.get('tva_rate', 0) > 0:
+        totals_data.append([
+            Paragraph(f"<font color='#6B7280'>TVA ({invoice['tva_rate']}%)</font>", normal_style),
+            Paragraph(f"<font color='#111827'>€{invoice.get('tva_amount', 0):.2f}</font>", normal_style)
+        ])
+    
+    # Total
+    totals_data.append([
+        Paragraph("<b>TOTAL DUE</b>", title_style),
+        Paragraph(f"<b><font size=18 color='#00C676'>€{invoice.get('total', 0):.2f}</font></b>", title_style)
+    ])
+    
+    totals_table = Table(totals_data, colWidths=[4.8*inch, 1.4*inch])
+    totals_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+        ('FONTSIZE', (0, 0), (-1, -2), 10),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, -2), 6),
+        ('BOTTOMPADDING', (0, -1), (-1, -1), 10),
+        ('LINEABOVE', (0, -1), (-1, -1), 2, colors.HexColor('#E5E7EB')),
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+    ]))
+    elements.append(totals_table)
+    elements.append(Spacer(1, 40))
+    
+    # Payment info / footer
+    footer_text = """
+    <font color='#6B7280' size=9>
+    <b>Payment Terms:</b> Payment is due within 30 days of invoice date.<br/>
+    <b>Thank you for your business!</b>
+    </font>
+    """
+    elements.append(Paragraph(footer_text, normal_style))
+    
+    # Build PDF
+    doc.build(elements)
+    buffer.seek(0)
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=invoice_{invoice['number']}.pdf"}
+    )
+async def generate_invoice_pdf(invoice_id: str, current_user: User = Depends(get_current_user)):
     """Generate a professional PDF invoice"""
     # Get invoice
     invoice = await db.invoices.find_one({"id": invoice_id}, {"_id": 0})
