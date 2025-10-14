@@ -33,10 +33,10 @@
   },
   {
     "content": "Take screenshots and verify UI matches design guidelines",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Run comprehensive testing via testing agent",
-    "status": "pending"
+    "status": "in_progress"
   }
 ]
