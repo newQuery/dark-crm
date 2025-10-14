@@ -144,7 +144,7 @@ export default function Payments() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-[color:var(--fg-secondary)]">No payments found</TableCell>
+                <TableCell colSpan={6} className="text-center text-[color:var(--fg-secondary)]">No payments found</TableCell>
               </TableRow>
             )}
           </TableBody>
