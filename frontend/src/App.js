@@ -14,6 +14,8 @@ import Invoices from './pages/Invoices';
 import CreateInvoice from './pages/CreateInvoice';
 import InvoiceDetail from './pages/InvoiceDetail';
 import PayInvoice from './pages/PayInvoice';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentCancel from './pages/PaymentCancel';
 import Payments from './pages/Payments';
 import PaymentDetail from './pages/PaymentDetail';
 import './App.css';
