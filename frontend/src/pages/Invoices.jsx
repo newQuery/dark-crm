@@ -162,7 +162,7 @@ export default function Invoices() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => { setSelectedInvoice(invoice); setViewDialogOpen(true); }}
+                    onClick={() => navigate(`/invoices/${invoice.id}`)}
                     data-testid={`view-invoice-${invoice.id}`}
                     className="hover:bg-white/10"
                   >
