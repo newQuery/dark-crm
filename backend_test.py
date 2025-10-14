@@ -264,9 +264,79 @@ class nQCrmAPITester:
                     data=update_data
                 )
                 
+                # Test deliverables (Phase 4)
+                self.test_deliverables(project_id)
+                
                 return project_id
         
         return None
+    
+    def test_deliverables(self, project_id):
+        """Test project deliverables CRUD operations (Phase 4)"""
+        print("\n" + "="*50)
+        print("TESTING PROJECT DELIVERABLES (Phase 4)")
+        print("="*50)
+        
+        # Get deliverables (should be empty initially)
+        success, deliverables_response = self.run_test(
+            "Get project deliverables",
+            "GET",
+            f"projects/{project_id}/deliverables",
+            200
+        )
+        
+        if success:
+            print(f"   Found {len(deliverables_response)} deliverables")
+        
+        # Add a deliverable
+        test_deliverable_data = {
+            "name": "Test Deliverable",
+            "file_url": "https://example.com/test-file.pdf",
+            "file_size": 1024
+        }
+        
+        success, create_response = self.run_test(
+            "Add deliverable to project",
+            "POST",
+            f"projects/{project_id}/deliverables",
+            200,
+            data=test_deliverable_data
+        )
+        
+        deliverable_id = None
+        if success and 'id' in create_response:
+            deliverable_id = create_response['id']
+            print(f"   Created deliverable with ID: {deliverable_id}")
+            
+            # Get deliverables again (should have 1 now)
+            success, deliverables_response = self.run_test(
+                "Get project deliverables after adding",
+                "GET",
+                f"projects/{project_id}/deliverables",
+                200
+            )
+            
+            if success:
+                print(f"   Found {len(deliverables_response)} deliverables after adding")
+            
+            # Delete the deliverable
+            self.run_test(
+                "Delete deliverable from project",
+                "DELETE",
+                f"projects/{project_id}/deliverables/{deliverable_id}",
+                200
+            )
+            
+            # Verify deletion
+            success, deliverables_response = self.run_test(
+                "Get project deliverables after deletion",
+                "GET",
+                f"projects/{project_id}/deliverables",
+                200
+            )
+            
+            if success:
+                print(f"   Found {len(deliverables_response)} deliverables after deletion")
 
     def test_invoices(self):
         """Test invoices CRUD operations"""
