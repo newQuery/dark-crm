@@ -819,7 +819,31 @@ async def create_invoice(invoice_data: InvoiceCreate, current_user: User = Depen
     else:
         invoice_number = "INV-1001"
     
-    invoice = Invoice(**invoice_data.model_dump(), number=invoice_number)
+    # Calculate line items totals
+    line_items_with_totals = []
+    subtotal = 0.0
+    for item_data in invoice_data.line_items:
+        item_total = item_data.unit_price * item_data.quantity
+        line_item = InvoiceLineItem(
+            **item_data.model_dump(),
+            total=item_total
+        )
+        line_items_with_totals.append(line_item)
+        subtotal += item_total
+    
+    # Calculate TVA and total
+    tva_amount = subtotal * (invoice_data.tva_rate / 100)
+    total = subtotal + tva_amount
+    
+    invoice = Invoice(
+        **invoice_data.model_dump(exclude={'line_items'}),
+        number=invoice_number,
+        line_items=line_items_with_totals,
+        subtotal=subtotal,
+        tva_amount=tva_amount,
+        total=total
+    )
+    
     invoice_dict = invoice.model_dump()
     invoice_dict['created_at'] = invoice_dict['created_at'].isoformat()
     invoice_dict['updated_at'] = invoice_dict['updated_at'].isoformat()
@@ -834,7 +858,7 @@ async def create_invoice(invoice_data: InvoiceCreate, current_user: User = Depen
         type="invoice_created",
         entity_type="invoice",
         entity_id=invoice.id,
-        message=f"Invoice {invoice.number} created",
+        message=f"Invoice {invoice.number} created (Total: €{total:.2f})",
         actor=current_user.name
     )
     activity_dict = activity.model_dump()
