@@ -541,6 +541,110 @@ async def delete_project(project_id: str, current_user: User = Depends(get_curre
     return {"message": "Project deleted successfully"}
 
 
+# ==================== PROJECT DELIVERABLES ROUTES ====================
+
+class DeliverableCreate(BaseModel):
+    name: str
+    file_url: str
+    file_size: Optional[int] = None
+
+@api_router.post("/projects/{project_id}/deliverables", response_model=Deliverable)
+async def add_deliverable(
+    project_id: str,
+    deliverable_data: DeliverableCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Add a deliverable to a project"""
+    project = await db.projects.find_one({"id": project_id}, {"_id": 0})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    deliverable = Deliverable(**deliverable_data.model_dump())
+    deliverable_dict = deliverable.model_dump()
+    deliverable_dict['uploaded_at'] = deliverable_dict['uploaded_at'].isoformat()
+    
+    # Add to project's deliverables array
+    await db.projects.update_one(
+        {"id": project_id},
+        {
+            "$push": {"deliverables": deliverable_dict},
+            "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
+        }
+    )
+    
+    # Log activity
+    activity = Activity(
+        type="deliverable_added",
+        entity_type="project",
+        entity_id=project_id,
+        message=f"Deliverable '{deliverable.name}' added to project",
+        actor=current_user.name
+    )
+    activity_dict = activity.model_dump()
+    activity_dict['timestamp'] = activity_dict['timestamp'].isoformat()
+    await db.activity.insert_one(activity_dict)
+    
+    return deliverable
+
+@api_router.get("/projects/{project_id}/deliverables", response_model=List[Deliverable])
+async def get_deliverables(project_id: str, current_user: User = Depends(get_current_user)):
+    """Get all deliverables for a project"""
+    project = await db.projects.find_one({"id": project_id}, {"_id": 0})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    deliverables = project.get('deliverables', [])
+    for d in deliverables:
+        if isinstance(d['uploaded_at'], str):
+            d['uploaded_at'] = datetime.fromisoformat(d['uploaded_at'])
+    
+    return deliverables
+
+@api_router.delete("/projects/{project_id}/deliverables/{deliverable_id}")
+async def delete_deliverable(
+    project_id: str,
+    deliverable_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Remove a deliverable from a project"""
+    project = await db.projects.find_one({"id": project_id}, {"_id": 0})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Find and remove the deliverable
+    deliverables = project.get('deliverables', [])
+    deliverable_to_remove = None
+    for d in deliverables:
+        if d['id'] == deliverable_id:
+            deliverable_to_remove = d
+            break
+    
+    if not deliverable_to_remove:
+        raise HTTPException(status_code=404, detail="Deliverable not found")
+    
+    await db.projects.update_one(
+        {"id": project_id},
+        {
+            "$pull": {"deliverables": {"id": deliverable_id}},
+            "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
+        }
+    )
+    
+    # Log activity
+    activity = Activity(
+        type="deliverable_removed",
+        entity_type="project",
+        entity_id=project_id,
+        message=f"Deliverable '{deliverable_to_remove['name']}' removed from project",
+        actor=current_user.name
+    )
+    activity_dict = activity.model_dump()
+    activity_dict['timestamp'] = activity_dict['timestamp'].isoformat()
+    await db.activity.insert_one(activity_dict)
+    
+    return {"message": "Deliverable deleted successfully"}
+
+
 # ==================== INVOICES ROUTES ====================
 
 @api_router.get("/invoices", response_model=List[Invoice])
