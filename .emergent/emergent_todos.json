@@ -1,26 +1,26 @@
 [
   {
     "content": "Create PaymentSuccess page component",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Create PaymentCancel page component",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Update App.js routing for success/cancel pages",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Update PayInvoice to check if invoice is already paid",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Update Stripe Checkout to expire if invoice paid",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Test complete payment flow with status changes",
-    "status": "pending"
+    "status": "in_progress"
   }
 ]
