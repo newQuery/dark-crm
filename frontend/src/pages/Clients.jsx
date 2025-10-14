@@ -206,7 +206,7 @@ export default function Clients() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => openViewDialog(client)}
+                        onClick={() => navigate(`/clients/${client.id}`)}
                         data-testid={`view-client-${client.id}`}
                         className="hover:bg-white/10"
                       >
