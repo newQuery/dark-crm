@@ -15,13 +15,13 @@ import { toast } from 'sonner';
 import api from '../lib/api';
 
 export default function Invoices() {
+  const navigate = useNavigate();
   const [invoices, setInvoices] = useState([]);
   const [clients, setClients] = useState([]);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
