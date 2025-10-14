@@ -1,30 +1,26 @@
 [
   {
-    "content": "Update Invoice model to include payment_link field",
-    "status": "completed"
+    "content": "Create PaymentSuccess page component",
+    "status": "in_progress"
   },
   {
-    "content": "Create Stripe Checkout Session endpoint for invoice payment",
-    "status": "completed"
+    "content": "Create PaymentCancel page component",
+    "status": "pending"
   },
   {
-    "content": "Add checkout.session.completed webhook handler",
-    "status": "completed"
+    "content": "Update App.js routing for success/cancel pages",
+    "status": "pending"
   },
   {
-    "content": "Create public payment page component",
-    "status": "completed"
+    "content": "Update PayInvoice to check if invoice is already paid",
+    "status": "pending"
   },
   {
-    "content": "Update App.js routing with public payment route",
-    "status": "completed"
+    "content": "Update Stripe Checkout to expire if invoice paid",
+    "status": "pending"
   },
   {
-    "content": "Display payment link in InvoiceDetail page",
-    "status": "completed"
-  },
-  {
-    "content": "Test invoice creation and payment flow",
+    "content": "Test complete payment flow with status changes",
     "status": "pending"
   }
 ]
