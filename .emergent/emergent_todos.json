@@ -9,11 +9,11 @@
   },
   {
     "content": "Add Stripe API keys and JWT secret to backend .env file",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Build complete backend with JWT auth, MongoDB models, CRUD endpoints, Stripe integration, and seed data",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Create design tokens in index.css per design guidelines (CSS variables)",
