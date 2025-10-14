@@ -1,42 +1,30 @@
 [
   {
-    "content": "Install required frontend dependencies (recharts, framer-motion, @fontsource/space-grotesk, @fontsource/inter)",
-    "status": "completed"
+    "content": "Implement Stripe webhook endpoint with signature verification for payment_intent.succeeded events",
+    "status": "pending"
   },
   {
-    "content": "Install required backend dependencies (stripe, python-jose[cryptography])",
-    "status": "completed"
+    "content": "Add automatic invoice status update when payment succeeds via webhook",
+    "status": "pending"
   },
   {
-    "content": "Add Stripe API keys and JWT secret to backend .env file",
-    "status": "completed"
+    "content": "Create activity log entries for all CRUD operations (create, update, delete)",
+    "status": "pending"
   },
   {
-    "content": "Build complete backend with JWT auth, MongoDB models, CRUD endpoints, Stripe integration, and seed data",
-    "status": "completed"
+    "content": "Implement real-time polling on Dashboard (refresh metrics/activity every 15 seconds)",
+    "status": "pending"
   },
   {
-    "content": "Create design tokens in index.css per design guidelines (CSS variables)",
-    "status": "completed"
+    "content": "Add WebSocket endpoint for real-time push updates (optional enhancement)",
+    "status": "pending"
   },
   {
-    "content": "Build complete frontend with app shell, routing, all pages (Login, Dashboard, Projects, Clients, Invoices, Payments), and API integration",
-    "status": "completed"
+    "content": "Test webhook with Stripe CLI or test payment",
+    "status": "pending"
   },
   {
-    "content": "Restart backend and frontend services via supervisorctl",
-    "status": "completed"
-  },
-  {
-    "content": "Test frontend compilation with esbuild and check service logs",
-    "status": "completed"
-  },
-  {
-    "content": "Take screenshots and verify UI matches design guidelines",
-    "status": "completed"
-  },
-  {
-    "content": "Run comprehensive testing via testing agent",
-    "status": "completed"
+    "content": "Verify real-time updates work correctly on Dashboard",
+    "status": "pending"
   }
 ]
