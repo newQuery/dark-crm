@@ -307,6 +307,120 @@ export default function Invoices() {
           </TabsContent>
         </Tabs>
       </Card>
+
+      {/* View Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)] sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-[color:var(--fg-primary)]">Invoice Details</DialogTitle>
+          </DialogHeader>
+          {selectedInvoice && (
+            <div className="space-y-4">
+              <div>
+                <Label className="text-[color:var(--fg-secondary)] text-sm">Invoice Number</Label>
+                <p className="text-[color:var(--fg-primary)] font-medium">{selectedInvoice.number}</p>
+              </div>
+              <div>
+                <Label className="text-[color:var(--fg-secondary)] text-sm">Client</Label>
+                <p className="text-[color:var(--fg-primary)]">{selectedInvoice.client_name || 'N/A'}</p>
+              </div>
+              <div>
+                <Label className="text-[color:var(--fg-secondary)] text-sm">Project</Label>
+                <p className="text-[color:var(--fg-primary)]">{selectedInvoice.project_title || 'N/A'}</p>
+              </div>
+              <div>
+                <Label className="text-[color:var(--fg-secondary)] text-sm">Amount</Label>
+                <p className="text-[color:var(--fg-primary)] font-medium text-lg">${selectedInvoice.amount.toLocaleString()}</p>
+              </div>
+              <div>
+                <Label className="text-[color:var(--fg-secondary)] text-sm">Status</Label>
+                <div className="mt-1">
+                  <Badge className={getStatusColor(selectedInvoice.status)}>
+                    {selectedInvoice.status}
+                  </Badge>
+                </div>
+              </div>
+              <div>
+                <Label className="text-[color:var(--fg-secondary)] text-sm">Issued Date</Label>
+                <p className="text-[color:var(--fg-primary)]">{new Date(selectedInvoice.issued_date).toLocaleDateString()}</p>
+              </div>
+              <div>
+                <Label className="text-[color:var(--fg-secondary)] text-sm">Due Date</Label>
+                <p className="text-[color:var(--fg-primary)]">{new Date(selectedInvoice.due_date).toLocaleDateString()}</p>
+              </div>
+              {selectedInvoice.paid_at && (
+                <div>
+                  <Label className="text-[color:var(--fg-secondary)] text-sm">Paid At</Label>
+                  <p className="text-[color:var(--fg-primary)]">{new Date(selectedInvoice.paid_at).toLocaleString()}</p>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setViewDialogOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)] sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-[color:var(--fg-primary)]">Edit Invoice</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEdit} className="space-y-4" data-testid="edit-invoice-form">
+            <div className="space-y-2">
+              <Label htmlFor="edit-amount">Amount ($)</Label>
+              <Input
+                id="edit-amount"
+                type="number"
+                step="0.01"
+                value={formData.amount}
+                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                required
+                className="bg-[color:var(--bg-muted)] border-[color:var(--border-default)]"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-due-date">Due Date</Label>
+              <Input
+                id="edit-due-date"
+                type="date"
+                value={formData.due_date}
+                onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
+                required
+                className="bg-[color:var(--bg-muted)] border-[color:var(--border-default)]"
+              />
+            </div>
+            <div className="flex gap-2 justify-end pt-4">
+              <Button type="button" variant="ghost" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
+              <Button type="submit" data-testid="edit-invoice-submit" className="bg-[color:var(--primary)] text-black hover:bg-emerald-400">Update Invoice</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-[color:var(--fg-primary)]">Delete Invoice</AlertDialogTitle>
+            <AlertDialogDescription className="text-[color:var(--fg-secondary)]">
+              Are you sure you want to delete invoice &quot;{selectedInvoice?.number}&quot;? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-transparent border-[color:var(--border-default)] hover:bg-white/5">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              data-testid="confirm-delete-invoice"
+              className="bg-[color:var(--error)] hover:bg-red-600 text-white"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
