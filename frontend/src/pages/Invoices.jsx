@@ -215,14 +215,14 @@ export default function Invoices() {
           <h1 className="text-4xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk' }}>Invoices</h1>
           <p className="text-[color:var(--fg-secondary)] mt-2">Track and manage your invoices</p>
         </div>
-        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button data-testid="new-invoice-button" className="bg-emerald-500 text-black hover:bg-emerald-400 font-medium gap-2 shadow-lg shadow-emerald-500/20">
-              <Plus size={16} /> New Invoice
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)] sm:max-w-lg">
-            <DialogHeader>
+        <Button 
+          onClick={() => navigate('/invoices/create')}
+          data-testid="new-invoice-button" 
+          className="bg-emerald-500 text-black hover:bg-emerald-400 font-medium gap-2 shadow-lg shadow-emerald-500/20"
+        >
+          <Plus size={16} /> New Invoice
+        </Button>
+      </div>
               <DialogTitle className="text-[color:var(--fg-primary)]">Create New Invoice</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleCreate} className="space-y-4" data-testid="create-invoice-form">
