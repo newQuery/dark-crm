@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
+import { Label } from '../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
-import { DollarSign, TrendingUp } from 'lucide-react';
+import { DollarSign, TrendingUp, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '../lib/api';
 import { motion } from 'framer-motion';
