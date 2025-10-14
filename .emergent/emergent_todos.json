@@ -1,7 +1,7 @@
 [
   {
     "content": "Refactor Invoices.jsx: Update View button to navigate to /invoices/:id and remove View Dialog",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Refactor Payments.jsx: Update View button to navigate to /payments/:id and remove View Dialog",
