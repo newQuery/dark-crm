@@ -224,7 +224,7 @@ export default function Invoices() {
             <DialogHeader>
               <DialogTitle className="text-[color:var(--fg-primary)]">Create New Invoice</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4" data-testid="create-invoice-form">
+            <form onSubmit={handleCreate} className="space-y-4" data-testid="create-invoice-form">
               <div className="space-y-2">
                 <Label htmlFor="client_id">Client</Label>
                 <Select value={formData.client_id} onValueChange={(value) => setFormData({ ...formData, client_id: value })} required>
