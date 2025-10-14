@@ -1,7 +1,7 @@
 [
   {
     "content": "Install required frontend dependencies (recharts, framer-motion, @fontsource/space-grotesk, @fontsource/inter)",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Install required backend dependencies (stripe, python-jose[cryptography])",
