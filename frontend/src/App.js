@@ -74,6 +74,36 @@ export default function App() {
             }
           />
           <Route
+            path="/users"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Users />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users/create"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <CreateUser />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users/:id"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <UserDetail />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/invoices"
             element={
               <ProtectedRoute>
