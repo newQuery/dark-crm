@@ -1,19 +1,19 @@
 [
   {
     "content": "Create new CreateInvoice.jsx page with line items management",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Update App.js routing to include /invoices/create",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Update Invoices.jsx to navigate to creation page",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Update InvoiceDetail.jsx to display line items",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Test invoice creation with line items and TVA",
