@@ -38,22 +38,6 @@ export default function Invoices() {
     }
   };
 
-  const handleEdit = async (e) => {
-    e.preventDefault();
-    try {
-      await api.patch(`/invoices/${selectedInvoice.id}`, {
-        amount: parseFloat(formData.amount),
-        due_date: new Date(formData.due_date).toISOString()
-      });
-      toast.success('Invoice updated successfully');
-      setEditDialogOpen(false);
-      setSelectedInvoice(null);
-      fetchInvoices();
-    } catch (error) {
-      toast.error('Failed to update invoice');
-    }
-  };
-
   const handleDelete = async () => {
     try {
       await api.delete(`/invoices/${selectedInvoice.id}`);
