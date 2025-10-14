@@ -37,10 +37,10 @@
   },
   {
     "content": "Add View Detail dialog for Payments with full transaction info",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Test all CRUD operations for each entity",
-    "status": "pending"
+    "status": "in_progress"
   }
 ]
