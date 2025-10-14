@@ -275,7 +275,7 @@ export default function Invoices() {
                 />
               </div>
               <div className="flex gap-2 justify-end pt-4">
-                <Button type="button" variant="ghost" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                <Button type="button" variant="ghost" onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
                 <Button type="submit" data-testid="create-invoice-submit" className="bg-[color:var(--primary)] text-black hover:bg-emerald-400">Create Invoice</Button>
               </div>
             </form>
