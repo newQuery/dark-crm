@@ -20,7 +20,7 @@ export default function PayInvoice() {
     fetchInvoice();
   }, [invoice_id, fetchInvoice]);
 
-  const fetchInvoice = async () => {
+  const fetchInvoice = useCallback(async () => {
     try {
       const response = await fetch(`${API_URL}/api/invoices/${invoice_id}/public`);
       if (!response.ok) throw new Error('Invoice not found');
@@ -31,7 +31,7 @@ export default function PayInvoice() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [invoice_id]);
 
   const handlePayNow = async () => {
     // Check if invoice is already paid (refresh data first)
