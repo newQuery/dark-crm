@@ -1441,6 +1441,62 @@ async def stripe_webhook(request: dict):
                 
                 logger.info(f"Payment processed for invoice {invoice['number']}")
     
+    # Handle checkout.session.completed event
+    elif event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        invoice_id = session.get('client_reference_id') or session.get('metadata', {}).get('invoice_id')
+        
+        if invoice_id:
+            # Update invoice status
+            now = datetime.now(timezone.utc)
+            await db.invoices.update_one(
+                {"id": invoice_id},
+                {
+                    "$set": {
+                        "status": "paid",
+                        "paid_at": now.isoformat(),
+                        "stripe_payment_intent_id": session.get('payment_intent'),
+                        "updated_at": now.isoformat()
+                    }
+                }
+            )
+            
+            # Get invoice details
+            invoice = await db.invoices.find_one({"id": invoice_id}, {"_id": 0})
+            
+            if invoice:
+                # Create payment record
+                payment = Payment(
+                    invoice_id=invoice_id,
+                    client_id=invoice['client_id'],
+                    amount=session['amount_total'] / 100,
+                    currency=session['currency'],
+                    status="succeeded",
+                    stripe_payment_intent_id=session.get('payment_intent'),
+                    stripe_charge_id=session.get('payment_intent')
+                )
+                payment_dict = payment.model_dump()
+                payment_dict['created_at'] = payment_dict['created_at'].isoformat()
+                await db.payments.insert_one(payment_dict)
+                
+                # Get client name
+                client = await db.clients.find_one({"id": invoice['client_id']}, {"_id": 0, "name": 1})
+                client_name = client['name'] if client else 'Unknown Client'
+                
+                # Log activity
+                activity = Activity(
+                    type="invoice_paid",
+                    entity_type="invoice",
+                    entity_id=invoice_id,
+                    message=f"Invoice {invoice['number']} paid by {client_name} via Stripe Checkout - €{session['amount_total'] / 100:,.2f}",
+                    actor="Stripe Checkout"
+                )
+                activity_dict = activity.model_dump()
+                activity_dict['timestamp'] = activity_dict['timestamp'].isoformat()
+                await db.activity.insert_one(activity_dict)
+                
+                logger.info(f"Checkout session completed for invoice {invoice['number']}")
+    
     return {"status": "success"}
 
 
