@@ -176,7 +176,7 @@ export default function Invoices() {
                       setFormData({
                         client_id: invoice.client_id,
                         project_id: invoice.project_id || '',
-                        amount: invoice.amount.toString(),
+                        amount: invoice.total?.toString() || invoice.amount?.toString() || '0',
                         due_date: new Date(invoice.due_date).toISOString().split('T')[0]
                       });
                       setEditDialogOpen(true);
