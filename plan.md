@@ -101,7 +101,7 @@ Deliverables for Phase 1:
   - MVP: client polls activity/metrics every 10–20s
   - Enhancement: FastAPI WebSocket endpoint for push updates (activity + invoice state)
 
-### Phase 3 – Full CRUD Actions & Entity Management (In Progress)
+### Phase 3 – Full CRUD Actions & Entity Management (COMPLETED)
 
 Add complete action buttons for all entities:
 - View detail dialogs/pages
