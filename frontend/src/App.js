@@ -11,6 +11,7 @@ import ProjectDetail from './pages/ProjectDetail';
 import Clients from './pages/Clients';
 import ClientDetail from './pages/ClientDetail';
 import Invoices from './pages/Invoices';
+import CreateInvoice from './pages/CreateInvoice';
 import InvoiceDetail from './pages/InvoiceDetail';
 import Payments from './pages/Payments';
 import PaymentDetail from './pages/PaymentDetail';
