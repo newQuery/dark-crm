@@ -1,30 +1,34 @@
 [
   {
-    "content": "Update backend: Create uploads directory and add file upload endpoint",
-    "status": "completed"
+    "content": "Download new darker logo (2.png) to backend",
+    "status": "in_progress"
   },
   {
-    "content": "Update backend: Modify deliverables API to handle file uploads",
-    "status": "completed"
+    "content": "Update Invoice model to support line items and TVA",
+    "status": "pending"
   },
   {
-    "content": "Update backend: Add file download endpoint",
-    "status": "completed"
+    "content": "Update invoice creation/edit API endpoints",
+    "status": "pending"
   },
   {
-    "content": "Update frontend: Replace URL input with file input in ProjectDetail",
-    "status": "completed"
+    "content": "Update PDF generation with line items table and new logo",
+    "status": "pending"
   },
   {
-    "content": "Update frontend: Modify deliverable creation to use FormData",
-    "status": "completed"
+    "content": "Update frontend: Invoice creation form with line items",
+    "status": "pending"
   },
   {
-    "content": "Test file upload functionality with different file types",
-    "status": "completed"
+    "content": "Update frontend: Invoice edit form with line items",
+    "status": "pending"
   },
   {
-    "content": "Update plan.md with file upload feature",
-    "status": "completed"
+    "content": "Update frontend: InvoiceDetail page to display line items",
+    "status": "pending"
+  },
+  {
+    "content": "Test invoice creation with line items and TVA",
+    "status": "pending"
   }
 ]
