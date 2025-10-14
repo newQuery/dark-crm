@@ -13,14 +13,14 @@
   },
   {
     "content": "Run comprehensive testing via testing_agent_v3",
+    "status": "completed"
+  },
+  {
+    "content": "Take screenshots to verify UI appearance",
     "status": "in_progress"
   },
   {
-    "content": "Fix any bugs identified by testing agent",
-    "status": "pending"
-  },
-  {
-    "content": "Perform final UI polish and verification",
+    "content": "Perform final verification and summary",
     "status": "pending"
   }
 ]
