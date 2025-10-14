@@ -94,7 +94,7 @@ Tooling & Ops:
 Deliverables for Phase 1:
 - Working auth, CRUD APIs, basic UI for modules, charts fed from mock/real data, Stripe intent creation & listing
 
-### Phase 2 – Webhooks, Real-time, and Activity (Next)
+### Phase 2 – Webhooks, Real-time, and Activity (In Progress)
 - Stripe webhooks wiring (secure signature verification)
 - Activity feed events on CRUD + payment success (append via server)
 - Realtime updates:
