@@ -54,14 +54,38 @@ export default function ProjectDetail() {
 
   const handleAddDeliverable = async (e) => {
     e.preventDefault();
+    
+    if (!selectedFile) {
+      toast.error('Please select a file');
+      return;
+    }
+    
     try {
-      await api.post(`/projects/${id}/deliverables`, formData);
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('file', selectedFile);
+      
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/projects/${id}/deliverables`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formDataToSend
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to upload file');
+      }
+      
       toast.success('Deliverable added successfully');
       setAddDialogOpen(false);
-      setFormData({ name: '', file_url: '' });
+      setFormData({ name: '' });
+      setSelectedFile(null);
       fetchDeliverables();
     } catch (error) {
-      toast.error('Failed to add deliverable');
+      toast.error(error.message || 'Failed to add deliverable');
     }
   };
 
