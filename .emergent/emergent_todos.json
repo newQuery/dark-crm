@@ -1,7 +1,7 @@
 [
   {
     "content": "Add View Detail, Edit, and Delete action buttons to Projects table",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Implement Edit Project dialog with pre-filled form data",
