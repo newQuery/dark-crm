@@ -21,10 +21,10 @@
   },
   {
     "content": "Test webhook with Stripe CLI or test payment",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Verify real-time updates work correctly on Dashboard",
-    "status": "pending"
+    "status": "completed"
   }
 ]
