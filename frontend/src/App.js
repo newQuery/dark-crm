@@ -83,6 +83,46 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/projects/:id"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <ProjectDetail />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/clients/:id"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <ClientDetail />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/invoices/:id"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <InvoiceDetail />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/payments/:id"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <PaymentDetail />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
         </Routes>
         <Toaster position="top-right" richColors />
       </AuthProvider>
