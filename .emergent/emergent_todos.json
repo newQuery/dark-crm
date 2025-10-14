@@ -13,27 +13,27 @@
   },
   {
     "content": "Frontend: Create ProjectDetail page with deliverables management UI",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Frontend: Create ClientDetail page",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Frontend: Create InvoiceDetail page with PDF download button",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Frontend: Create PaymentDetail page",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Frontend: Add routing for all detail pages (/projects/:id, /clients/:id, /invoices/:id, /payments/:id)",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Frontend: Update view buttons to navigate to detail pages instead of opening dialogs",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Test deliverables upload/list/delete functionality",
