@@ -1,50 +1,34 @@
 [
   {
-    "content": "Backend: Add deliverables API endpoints (add, list, delete deliverables for projects)",
-    "status": "completed"
-  },
-  {
-    "content": "Backend: Install reportlab and add PDF invoice generation endpoint",
-    "status": "completed"
-  },
-  {
-    "content": "Backend: Update Project model to include deliverables array",
-    "status": "completed"
-  },
-  {
-    "content": "Frontend: Create ProjectDetail page with deliverables management UI",
-    "status": "completed"
-  },
-  {
-    "content": "Frontend: Create ClientDetail page",
-    "status": "completed"
-  },
-  {
-    "content": "Frontend: Create InvoiceDetail page with PDF download button",
-    "status": "completed"
-  },
-  {
-    "content": "Frontend: Create PaymentDetail page",
-    "status": "completed"
-  },
-  {
-    "content": "Frontend: Add routing for all detail pages (/projects/:id, /clients/:id, /invoices/:id, /payments/:id)",
-    "status": "completed"
-  },
-  {
-    "content": "Frontend: Update view buttons to navigate to detail pages instead of opening dialogs",
-    "status": "in_progress"
-  },
-  {
-    "content": "Test deliverables upload/list/delete functionality",
+    "content": "Refactor Invoices.jsx: Update View button to navigate to /invoices/:id and remove View Dialog",
     "status": "pending"
   },
   {
-    "content": "Test PDF invoice generation and download",
+    "content": "Refactor Payments.jsx: Update View button to navigate to /payments/:id and remove View Dialog",
     "status": "pending"
   },
   {
-    "content": "Test all detail pages navigation and display",
+    "content": "Test ProjectDetail deliverables functionality (add, list, download, delete)",
+    "status": "pending"
+  },
+  {
+    "content": "Test InvoiceDetail PDF download functionality",
+    "status": "pending"
+  },
+  {
+    "content": "Test all detail pages navigation and data display",
+    "status": "pending"
+  },
+  {
+    "content": "Run comprehensive testing via testing_agent_v3",
+    "status": "pending"
+  },
+  {
+    "content": "Fix any bugs identified by testing agent",
+    "status": "pending"
+  },
+  {
+    "content": "Perform final UI polish and verification",
     "status": "pending"
   }
 ]
