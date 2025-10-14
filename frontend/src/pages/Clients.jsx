@@ -91,11 +91,6 @@ export default function Clients() {
     setEditDialogOpen(true);
   };
 
-  const openViewDialog = (client) => {
-    setSelectedClient(client);
-    setViewDialogOpen(true);
-  };
-
   const openDeleteDialog = (client) => {
     setSelectedClient(client);
     setDeleteDialogOpen(true);
