@@ -142,7 +142,7 @@ export default function Projects() {
         </div>
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button data-testid="create-project-button" className="bg-[color:var(--primary)] text-black hover:bg-emerald-400 gap-2">
+            <Button data-testid="create-project-button" className="bg-emerald-500 text-black hover:bg-emerald-400 font-medium gap-2 shadow-lg shadow-emerald-500/20">
               <Plus size={16} /> New Project
             </Button>
           </DialogTrigger>
