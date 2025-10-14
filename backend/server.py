@@ -649,6 +649,33 @@ async def get_deliverables(project_id: str, current_user: User = Depends(get_cur
     
     return deliverables
 
+@api_router.get("/deliverables/download/{deliverable_id}")
+async def download_deliverable(
+    deliverable_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Download a deliverable file"""
+    # Find the deliverable in any project
+    project = await db.projects.find_one(
+        {"deliverables.id": deliverable_id},
+        {"_id": 0, "deliverables.$": 1}
+    )
+    
+    if not project or not project.get('deliverables'):
+        raise HTTPException(status_code=404, detail="Deliverable not found")
+    
+    deliverable = project['deliverables'][0]
+    file_path = Path(deliverable['file_path'])
+    
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found on server")
+    
+    return FileResponse(
+        path=file_path,
+        filename=deliverable['filename'],
+        media_type=deliverable.get('file_type', 'application/octet-stream')
+    )
+
 @api_router.delete("/projects/{project_id}/deliverables/{deliverable_id}")
 async def delete_deliverable(
     project_id: str,
@@ -670,6 +697,11 @@ async def delete_deliverable(
     
     if not deliverable_to_remove:
         raise HTTPException(status_code=404, detail="Deliverable not found")
+    
+    # Delete the file from disk
+    file_path = Path(deliverable_to_remove['file_path'])
+    if file_path.exists():
+        file_path.unlink()
     
     await db.projects.update_one(
         {"id": project_id},
