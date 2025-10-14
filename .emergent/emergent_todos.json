@@ -25,19 +25,19 @@
   },
   {
     "content": "Add View Detail, Edit, and Delete action buttons to Invoices table",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Implement Edit Invoice dialog with pre-filled form data",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Add Delete Invoice with confirmation dialog",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Add View Detail dialog for Payments with full transaction info",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Test all CRUD operations for each entity",
