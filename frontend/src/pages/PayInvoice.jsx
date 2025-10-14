@@ -34,10 +34,18 @@ export default function PayInvoice() {
   };
 
   const handlePayNow = async () => {
+    // Check if invoice is already paid (refresh data first)
+    await fetchInvoice();
+    
+    if (invoice.status === 'paid') {
+      toast.error('This invoice has already been paid');
+      return;
+    }
+    
     setGeneratingLink(true);
     try {
-      // We need to generate payment link without auth - let's use the stored one or error
       if (invoice.payment_link) {
+        // Redirect to Stripe Checkout
         window.location.href = invoice.payment_link;
       } else {
         toast.error('Payment link not available. Please contact the sender.');
