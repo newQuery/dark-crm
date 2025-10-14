@@ -1,19 +1,19 @@
 [
   {
     "content": "Implement Stripe webhook endpoint with signature verification for payment_intent.succeeded events",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Add automatic invoice status update when payment succeeds via webhook",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Create activity log entries for all CRUD operations (create, update, delete)",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Implement real-time polling on Dashboard (refresh metrics/activity every 15 seconds)",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Add WebSocket endpoint for real-time push updates (optional enhancement)",
