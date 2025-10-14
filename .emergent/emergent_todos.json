@@ -1,26 +1,34 @@
 [
   {
-    "content": "Check backend logs for webhook activity",
-    "status": "completed"
+    "content": "Add User CRUD backend endpoints",
+    "status": "in_progress"
   },
   {
-    "content": "Debug why invoice status not updating after payment",
-    "status": "completed"
+    "content": "Add generate random password endpoint",
+    "status": "pending"
   },
   {
-    "content": "Add manual payment verification endpoint",
-    "status": "completed"
+    "content": "Create Users.jsx list page",
+    "status": "pending"
   },
   {
-    "content": "Update PaymentSuccess to call verification endpoint",
-    "status": "completed"
+    "content": "Create CreateUser.jsx page (without password)",
+    "status": "pending"
   },
   {
-    "content": "Update PayInvoice to refetch invoice on mount",
-    "status": "completed"
+    "content": "Create UserDetail.jsx with password generation",
+    "status": "pending"
   },
   {
-    "content": "Restart backend with new changes",
-    "status": "completed"
+    "content": "Update App.js routing for users",
+    "status": "pending"
+  },
+  {
+    "content": "Update Sidebar navigation to include Users",
+    "status": "pending"
+  },
+  {
+    "content": "Test Users CRUD flow",
+    "status": "pending"
   }
 ]
