@@ -172,7 +172,7 @@ export default function Invoices() {
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={6} className="text-center text-[color:var(--fg-secondary)]">No invoices found</TableCell>
+            <TableCell colSpan={7} className="text-center text-[color:var(--fg-secondary)]">No invoices found</TableCell>
           </TableRow>
         )}
       </TableBody>
