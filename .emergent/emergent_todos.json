@@ -1,31 +1,31 @@
 [
   {
     "content": "Add View Detail, Edit, and Delete action buttons to Projects table",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Implement Edit Project dialog with pre-filled form data",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Add Delete Project with confirmation dialog",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Add View Detail, Edit, and Delete action buttons to Clients table",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Implement Edit Client dialog with pre-filled form data",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Add Delete Client with confirmation dialog",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Add View Detail, Edit, and Delete action buttons to Invoices table",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Implement Edit Invoice dialog with pre-filled form data",
