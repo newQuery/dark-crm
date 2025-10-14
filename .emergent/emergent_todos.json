@@ -1,22 +1,26 @@
 [
   {
     "content": "Check backend logs for webhook activity",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Debug why invoice status not updating after payment",
-    "status": "pending"
+    "status": "completed"
+  },
+  {
+    "content": "Add manual payment verification endpoint",
+    "status": "completed"
+  },
+  {
+    "content": "Update PaymentSuccess to call verification endpoint",
+    "status": "completed"
   },
   {
     "content": "Update PayInvoice to refetch invoice on mount",
-    "status": "pending"
+    "status": "completed"
   },
   {
-    "content": "Verify webhook event handling",
-    "status": "pending"
-  },
-  {
-    "content": "Test payment flow again",
-    "status": "pending"
+    "content": "Restart backend with new changes",
+    "status": "completed"
   }
 ]
