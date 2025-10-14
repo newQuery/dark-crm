@@ -17,15 +17,15 @@
   },
   {
     "content": "Create design tokens in index.css per design guidelines (CSS variables)",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Build complete frontend with app shell, routing, all pages (Login, Dashboard, Projects, Clients, Invoices, Payments), and API integration",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Restart backend and frontend services via supervisorctl",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Test frontend compilation with esbuild and check service logs",
