@@ -169,44 +169,6 @@ export default function Invoices() {
         </Tabs>
       </Card>
 
-      {/* Edit Dialog */}
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)] sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-[color:var(--fg-primary)]">Edit Invoice</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleEdit} className="space-y-4" data-testid="edit-invoice-form">
-            <div className="space-y-2">
-              <Label htmlFor="edit-amount">Amount ($)</Label>
-              <Input
-                id="edit-amount"
-                type="number"
-                step="0.01"
-                value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                required
-                className="bg-[color:var(--bg-muted)] border-[color:var(--border-default)]"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-due-date">Due Date</Label>
-              <Input
-                id="edit-due-date"
-                type="date"
-                value={formData.due_date}
-                onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                required
-                className="bg-[color:var(--bg-muted)] border-[color:var(--border-default)]"
-              />
-            </div>
-            <div className="flex gap-2 justify-end pt-4">
-              <Button type="button" variant="ghost" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-              <Button type="submit" data-testid="edit-invoice-submit" className="bg-emerald-500 text-black hover:bg-emerald-400 font-medium">Update Invoice</Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)]">
