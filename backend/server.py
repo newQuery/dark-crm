@@ -90,6 +90,14 @@ class ClientUpdate(BaseModel):
     company: Optional[str] = None
     phone: Optional[str] = None
 
+class Deliverable(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    file_url: str
+    file_size: Optional[int] = None
+    uploaded_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 class Project(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -99,6 +107,7 @@ class Project(BaseModel):
     status: str = "active"  # active, completed, on-hold
     deadline: Optional[datetime] = None
     total_value: float = 0.0
+    deliverables: List[Deliverable] = []
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
