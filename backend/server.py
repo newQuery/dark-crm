@@ -981,6 +981,10 @@ async def create_payment_link(invoice_id: str, current_user: User = Depends(get_
     if invoice['status'] == 'paid':
         raise HTTPException(status_code=400, detail="Invoice is already paid")
     
+    # Check if invoice has line items
+    if not invoice.get('line_items') or len(invoice['line_items']) == 0:
+        raise HTTPException(status_code=400, detail="Invoice must have at least one line item to generate payment link")
+    
     # Get client for email
     client = await db.clients.find_one({"id": invoice['client_id']}, {"_id": 0})
     
@@ -1047,8 +1051,9 @@ async def create_payment_link(invoice_id: str, current_user: User = Depends(get_
             checkout_session_id=session.id
         )
     
-    except stripe.error.StripeError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to create Stripe Checkout Session: {e}")
+        raise HTTPException(status_code=400, detail=f"Failed to create payment link: {str(e)}")
 
 @api_router.get("/invoices/{invoice_id}/public", response_model=Invoice)
 async def get_public_invoice(invoice_id: str):
