@@ -961,6 +961,56 @@ async def get_payments_chart_data(current_user: User = Depends(get_current_user)
     return months
 
 
+# ==================== WEBSOCKET FOR REAL-TIME UPDATES ====================
+
+from fastapi import WebSocket, WebSocketDisconnect
+from typing import Set
+import json
+
+# Store active WebSocket connections
+active_connections: Set[WebSocket] = set()
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    """WebSocket endpoint for real-time updates"""
+    await websocket.accept()
+    active_connections.add(websocket)
+    
+    try:
+        while True:
+            # Keep connection alive and listen for messages
+            data = await websocket.receive_text()
+            
+            # Echo back for heartbeat
+            await websocket.send_text(json.dumps({"type": "pong"}))
+    except WebSocketDisconnect:
+        active_connections.remove(websocket)
+        logger.info("WebSocket client disconnected")
+
+async def broadcast_update(update_type: str, data: dict):
+    """Broadcast updates to all connected WebSocket clients"""
+    if not active_connections:
+        return
+    
+    message = json.dumps({
+        "type": update_type,
+        "data": data,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Send to all connected clients
+    disconnected = set()
+    for connection in active_connections:
+        try:
+            await connection.send_text(message)
+        except:
+            disconnected.add(connection)
+    
+    # Remove disconnected clients
+    for conn in disconnected:
+        active_connections.discard(conn)
+
+
 # Include the router in the main app
 app.include_router(api_router)
 
