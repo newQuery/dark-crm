@@ -136,6 +136,14 @@ class ProjectUpdate(BaseModel):
     deadline: Optional[datetime] = None
     total_value: Optional[float] = None
 
+class InvoiceLineItem(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    description: str
+    unit_price: float
+    quantity: float
+    total: float
+
 class Invoice(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -144,8 +152,12 @@ class Invoice(BaseModel):
     client_name: Optional[str] = None
     project_id: Optional[str] = None
     project_title: Optional[str] = None
-    amount: float
-    currency: str = "usd"
+    line_items: List[InvoiceLineItem] = []
+    subtotal: float = 0.0
+    tva_rate: float = 0.0  # TVA rate as percentage (0, 2.1, 5.5, 10, 20)
+    tva_amount: float = 0.0
+    total: float = 0.0
+    currency: str = "eur"
     status: str = "pending"  # paid, pending, overdue
     due_date: datetime
     issued_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -154,14 +166,22 @@ class Invoice(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+class InvoiceLineItemCreate(BaseModel):
+    description: str
+    unit_price: float
+    quantity: float
+
 class InvoiceCreate(BaseModel):
     client_id: str
     project_id: Optional[str] = None
-    amount: float
-    currency: str = "usd"
+    line_items: List[InvoiceLineItemCreate]
+    tva_rate: float = 0.0
+    currency: str = "eur"
     due_date: datetime
 
 class InvoiceUpdate(BaseModel):
+    line_items: Optional[List[InvoiceLineItemCreate]] = None
+    tva_rate: Optional[float] = None
     status: Optional[str] = None
     paid_at: Optional[datetime] = None
     stripe_payment_intent_id: Optional[str] = None
