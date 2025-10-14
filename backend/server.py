@@ -1139,7 +1139,7 @@ async def verify_payment(invoice_id: str, session_id: str = None):
                 await db.activity.insert_one(activity_dict)
                 
                 return {"status": "paid", "message": "Payment verified and invoice updated"}
-        except stripe.error.StripeError as e:
+        except Exception as e:
             logger.error(f"Stripe API error: {e}")
             raise HTTPException(status_code=400, detail="Failed to verify payment with Stripe")
     
