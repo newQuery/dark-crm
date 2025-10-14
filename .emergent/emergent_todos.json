@@ -13,15 +13,15 @@
   },
   {
     "content": "Update frontend: Replace URL input with file input in ProjectDetail",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Update frontend: Modify deliverable creation to use FormData",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Test file upload functionality with different file types",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Update plan.md with file upload feature",
