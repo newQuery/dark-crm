@@ -64,8 +64,17 @@ class User(BaseModel):
 
 class UserCreate(BaseModel):
     email: EmailStr
-    password: str
     name: str
+    role: str = "admin"
+
+class UserUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    name: Optional[str] = None
+    role: Optional[str] = None
+
+class GeneratePasswordResponse(BaseModel):
+    password: str
+    message: str
 
 class LoginRequest(BaseModel):
     email: EmailStr
