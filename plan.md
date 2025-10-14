@@ -1,6 +1,6 @@
 # nQCrm – Development Plan (Blueprint)
 
-Status: Phase 4 – Detail Pages & Enhanced Features (COMPLETED ✅)
+Status: Phase 4 – Detail Pages & Enhanced Features (COMPLETED ✅) + File Upload Enhancement (COMPLETED ✅)
 Owner: Engineering
 Last updated: 2025-01-14
 
@@ -14,6 +14,7 @@ nQCrm is a modern, dark-themed CRM dashboard built with React + FastAPI + MongoD
 - Clean API-first backend for future mobile app integration
 - Data visualizations with Recharts and a cohesive, accessible dark UI following design_guidelines.md
 - **Dedicated detail pages for all entities** with enhanced features (deliverables management, PDF invoice generation)
+- **Real file upload system** for project deliverables with 10MB limit and multiple format support
 - **97.5% test success rate** with comprehensive backend and frontend testing
 
 ---
@@ -29,8 +30,9 @@ nQCrm is a modern, dark-themed CRM dashboard built with React + FastAPI + MongoD
 - ✅ Use UUID identifiers and timezone-aware datetimes throughout
 - ✅ Provide dedicated detail pages with enhanced functionality for all entities
 - ✅ Replace all view dialogs with dedicated detail pages for better UX
-- ✅ Implement deliverables management for projects
+- ✅ Implement deliverables management for projects with **real file upload**
 - ✅ Enable PDF invoice generation with professional formatting and logo
+- ✅ File upload system with validation, size limits, and secure storage
 
 **Next Objectives (Phase 5):**
 - Advanced testing and polish
@@ -71,7 +73,7 @@ Backend (FastAPI):
   - Invoice: id, number, client_id, project_id, amount, currency, status (paid/pending/overdue), due_date, issued_date, paid_at, stripe_payment_intent_id, created_at, updated_at
   - Payment: id, invoice_id, client_id, amount, currency, status, stripe_charge_id/intent_id, created_at
   - Activity: id, type, entity_type, entity_id, message, actor, timestamp
-  - Deliverable: id, name, file_url, uploaded_at
+  - **Deliverable: id, name, filename, file_path, file_size, file_type, uploaded_at**
 - CRUD Endpoints (all prefixed with /api):
   - /clients [GET/POST], /clients/{id} [GET/PATCH/DELETE]
   - /projects [GET/POST], /projects/{id} [GET/PATCH/DELETE]
@@ -123,24 +125,34 @@ Add complete action buttons for all entities:
 ### Phase 4 – Detail Pages & Enhanced Features (COMPLETED ✅)
 
 **Backend Deliverables:**
-- ✅ Deliverables management API endpoints
-  - POST /api/projects/{id}/deliverables (add deliverable)
-  - GET /api/projects/{id}/deliverables (list deliverables)
-  - DELETE /api/projects/{id}/deliverables/{deliverable_id} (remove deliverable)
+- ✅ **File Upload System for Deliverables**
+  - POST /api/projects/{id}/deliverables (multipart/form-data file upload)
+  - GET /api/projects/{id}/deliverables (list deliverables with file metadata)
+  - GET /api/deliverables/download/{deliverable_id} (secure file download)
+  - DELETE /api/projects/{id}/deliverables/{deliverable_id} (remove deliverable + delete file)
+  - File storage: `/app/uploads/deliverables/` with UUID-prefixed filenames
+  - File validation: 10MB size limit, extension whitelist
+  - Supported formats: PDF, DOC/DOCX, XLS/XLSX, CSV, JPG/PNG/GIF/SVG/WEBP, ZIP/RAR/TAR/GZ, TXT/MD
+  - Automatic file cleanup on deliverable deletion
+  
 - ✅ PDF invoice generation with reportlab
   - GET /api/invoices/{id}/pdf (download professional PDF with logo)
   - Includes nQCrm branding, invoice details, client/project info
   - Professional formatting with proper spacing and typography
-- ✅ Dependencies: reportlab and pillow added to requirements.txt
+  
+- ✅ Dependencies: reportlab, pillow, FastAPI File/Form handling
 
 **Frontend Deliverables:**
 - ✅ ProjectDetail page (`/projects/:id`)
   - View project information (client, value, deadline, status)
-  - Add/list/remove deliverables with file URLs
-  - Download deliverables functionality
+  - **File upload interface with file picker**
+  - **Display uploaded files with filename, size, type, and upload date**
+  - **Download button for each deliverable (opens file in new tab)**
+  - Delete deliverable functionality
   - Breadcrumb navigation back to Projects list
   - Empty state for projects without deliverables
   - Framer Motion animations for smooth transitions
+  - **File selection preview showing selected filename and size**
   
 - ✅ InvoiceDetail page (`/invoices/:id`)
   - View invoice information (number, amount, dates, status)
@@ -193,6 +205,10 @@ Add complete action buttons for all entities:
   - Back navigation working
   - No view dialogs appearing (as intended)
 - ✅ Overall: 97.5% success rate
+- ✅ **File upload tested and verified working**
+  - File saved to `/app/uploads/deliverables/` with UUID prefix
+  - Frontend displays file metadata correctly
+  - Download functionality working
 - ⚠️ Minor issues (LOW severity, non-blocking):
   - Dashboard charts rendering issue (selector-related, cosmetic only)
   - HTML hydration warnings in tables (console only, no functional impact)
@@ -225,7 +241,9 @@ Add complete action buttons for all entities:
 - 2FA (time-based OTP) for admin user
 - Export/Import CSVs for invoices and clients
 - Multi-user roles & permissions (Admin, Manager, Viewer)
-- File upload for deliverables (replace URL-based with actual file storage)
+- ~~File upload for deliverables~~ ✅ **COMPLETED**
+- **File preview for images/PDFs** (enhancement to existing upload)
+- **Bulk file upload** (multiple files at once)
 - Invoice templates customization
 - Advanced search and filtering
 - Bulk operations (bulk delete, bulk status update)
@@ -244,12 +262,15 @@ Architecture & Environment:
 - Backend -> MongoDB: MONGO_URL (existing). Preserve and never change this variable name/value.
 - Backend binding: 0.0.0.0:8001
 - Ingress: /api/* -> backend; others -> frontend
+- **File Storage: /app/uploads/deliverables/ (persistent directory)**
 
 Security:
 - JWT with HS256; tokens expire (e.g., 24h); refresh optional later
 - Passwords hashed with bcrypt; no plaintext storage
 - CORS origins from env CORS_ORIGINS (comma-separated)
 - Never log secrets; avoid echoing keys in logs
+- **File uploads: Extension whitelist, 10MB size limit, UUID-prefixed filenames**
+- **File downloads: Authentication required, file path validation**
 
 Stripe:
 - Backend-only usage of Secret key; Frontend uses publishable key only when needed (not required for server-created payment intents + server confirmation)
@@ -267,7 +288,7 @@ Data Models (Mongo collections – all IDs are UUID strings):
 - users: { id, email, password_hash, name, role, created_at }
 - clients: { id, name, email, company, phone, project_ids[], created_at, updated_at }
 - projects: { id, title, client_id, status, deadline, total_value, deliverables[], created_at, updated_at }
-  - deliverables: [{ id, name, file_url, uploaded_at }]
+  - **deliverables: [{ id, name, filename, file_path, file_size, file_type, uploaded_at }]**
 - invoices: { id, number, client_id, project_id, amount, currency, status, due_date, issued_date, paid_at, stripe_payment_intent_id, created_at, updated_at }
 - payments: { id, invoice_id, client_id, amount, currency, status, stripe_charge_id, stripe_payment_intent_id, created_at }
 - activity: { id, type, entity_type, entity_id, actor, message, timestamp }
@@ -276,9 +297,10 @@ API Surface (all prefixed /api):
 - Auth: POST /auth/login, GET /auth/me
 - Clients: GET/POST /clients; GET/PATCH/DELETE /clients/{id}
 - Projects: GET/POST /projects; GET/PATCH/DELETE /projects/{id}
-  - POST /projects/{id}/deliverables (add deliverable)
+  - **POST /projects/{id}/deliverables (multipart/form-data: name, file)**
   - GET /projects/{id}/deliverables (list deliverables)
   - DELETE /projects/{id}/deliverables/{deliverable_id} (remove deliverable)
+- **Deliverables: GET /deliverables/download/{deliverable_id} (download file)**
 - Invoices: GET/POST /invoices; GET/PATCH/DELETE /invoices/{id}
   - GET /invoices/{id}/pdf (download PDF)
 - Payments: GET /payments, POST /payments/intent
@@ -308,6 +330,7 @@ Testing & QA:
 - Compile check (frontend): esbuild src/ --loader:.js=jsx --bundle --outfile=/dev/null
 - Logs: tail -n 50 /var/log/supervisor/frontend.*.log /var/log/supervisor/backend.*.log
 - Services: supervisorctl status (all services running)
+- **File uploads: Verified working with test-file.pdf (25 bytes)**
 
 ---
 
@@ -324,7 +347,13 @@ Testing & QA:
 ### Phase 4 (Completed ✅)
 - ✅ Backend deliverables API endpoints functional (100% pass rate)
 - ✅ Backend PDF generation working (81KB PDF generated successfully)
-- ✅ ProjectDetail page with deliverables management (add, list, delete)
+- ✅ **File upload system implemented and tested**
+- ✅ **Files stored securely with UUID prefixes**
+- ✅ **File download endpoint working with authentication**
+- ✅ **10MB file size limit enforced**
+- ✅ **Multiple file formats supported (PDF, Office, images, archives)**
+- ✅ ProjectDetail page with file upload interface
+- ✅ **Frontend displays file metadata (name, size, type, date)**
 - ✅ InvoiceDetail page with PDF download button
 - ✅ ClientDetail page displaying contact info and associated projects
 - ✅ PaymentDetail page displaying transaction information
@@ -359,11 +388,22 @@ Testing & QA:
 
 **Notes:**
 - All critical Phase 4 functionality working as expected
+- **File upload feature fully operational and tested**
 - 97.5% test success rate indicates production-ready core features
 - UI/UX follows design guidelines with professional dark theme
 - Backend APIs robust with proper error handling
 - Frontend navigation intuitive with breadcrumb patterns
+- **File storage directory created and permissions set (755)**
 - Ready for Phase 5 polish and optimization
+
+**File Upload Implementation Details:**
+- Storage location: `/app/uploads/deliverables/`
+- Filename format: `{UUID}_{original_filename}`
+- Example: `a90d2cf9-50b8-4e72-84d3-56ce8c24da41_test-file.pdf`
+- Allowed extensions: .pdf, .doc, .docx, .xls, .xlsx, .csv, .jpg, .jpeg, .png, .gif, .svg, .webp, .zip, .rar, .tar, .gz, .txt, .md
+- Size limit: 10MB (10,485,760 bytes)
+- Delete behavior: Removes both database record and physical file
+- Download: Authenticated endpoint with proper Content-Type headers
 
 ---
 
@@ -397,6 +437,7 @@ Testing & QA:
 
 **Long-term:**
 11. Implement multi-user support with role-based access
-12. Add file upload capability for deliverables
-13. Develop client portal for invoice viewing
-14. Implement advanced analytics and reporting
+12. ~~Add file upload capability for deliverables~~ ✅ **COMPLETED**
+13. Add file preview for images and PDFs
+14. Develop client portal for invoice viewing
+15. Implement advanced analytics and reporting
