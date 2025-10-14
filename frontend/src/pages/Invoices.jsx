@@ -128,6 +128,46 @@ export default function Invoices() {
                   {invoice.status}
                 </Badge>
               </TableCell>
+              <TableCell className="text-right">
+                <div className="flex gap-2 justify-end">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => { setSelectedInvoice(invoice); setViewDialogOpen(true); }}
+                    data-testid={`view-invoice-${invoice.id}`}
+                    className="hover:bg-white/10"
+                  >
+                    <Eye size={16} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => { 
+                      setSelectedInvoice(invoice);
+                      setFormData({
+                        client_id: invoice.client_id,
+                        project_id: invoice.project_id || '',
+                        amount: invoice.amount.toString(),
+                        due_date: new Date(invoice.due_date).toISOString().split('T')[0]
+                      });
+                      setEditDialogOpen(true);
+                    }}
+                    data-testid={`edit-invoice-${invoice.id}`}
+                    className="hover:bg-white/10"
+                  >
+                    <Edit size={16} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => { setSelectedInvoice(invoice); setDeleteDialogOpen(true); }}
+                    data-testid={`delete-invoice-${invoice.id}`}
+                    className="hover:bg-red-500/10 text-[color:var(--error)]"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
+              </TableCell>
             </TableRow>
           ))
         ) : (
