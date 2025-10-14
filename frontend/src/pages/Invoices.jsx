@@ -150,7 +150,7 @@ export default function Invoices() {
               <TableCell className="font-medium text-[color:var(--fg-primary)]">{invoice.number}</TableCell>
               <TableCell className="text-[color:var(--fg-secondary)]">{invoice.client_name || 'N/A'}</TableCell>
               <TableCell className="text-[color:var(--fg-secondary)]">{invoice.project_title || 'N/A'}</TableCell>
-              <TableCell className="text-[color:var(--fg-primary)]">${invoice.amount.toLocaleString()}</TableCell>
+              <TableCell className="text-[color:var(--fg-primary)]">€{(invoice.total || invoice.amount || 0).toLocaleString()}</TableCell>
               <TableCell className="text-[color:var(--fg-secondary)]">{new Date(invoice.due_date).toLocaleDateString()}</TableCell>
               <TableCell>
                 <Badge className={getStatusColor(invoice.status)} data-testid={`invoice-status-${invoice.status}`}>
