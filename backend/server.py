@@ -883,11 +883,51 @@ async def update_invoice(invoice_id: str, update_data: InvoiceUpdate, current_us
     if not existing:
         raise HTTPException(status_code=404, detail="Invoice not found")
     
-    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    update_dict = {}
+    
+    # Handle line items update if provided
+    if update_data.line_items is not None:
+        line_items_with_totals = []
+        subtotal = 0.0
+        for item_data in update_data.line_items:
+            item_total = item_data.unit_price * item_data.quantity
+            line_item = InvoiceLineItem(
+                **item_data.model_dump(),
+                total=item_total
+            )
+            line_items_with_totals.append(line_item.model_dump())
+            subtotal += item_total
+        
+        # Use updated or existing TVA rate
+        tva_rate = update_data.tva_rate if update_data.tva_rate is not None else existing.get('tva_rate', 0.0)
+        tva_amount = subtotal * (tva_rate / 100)
+        total = subtotal + tva_amount
+        
+        update_dict['line_items'] = line_items_with_totals
+        update_dict['subtotal'] = subtotal
+        update_dict['tva_rate'] = tva_rate
+        update_dict['tva_amount'] = tva_amount
+        update_dict['total'] = total
+    elif update_data.tva_rate is not None:
+        # Only TVA rate changed, recalculate
+        subtotal = existing.get('subtotal', 0.0)
+        tva_amount = subtotal * (update_data.tva_rate / 100)
+        total = subtotal + tva_amount
+        
+        update_dict['tva_rate'] = update_data.tva_rate
+        update_dict['tva_amount'] = tva_amount
+        update_dict['total'] = total
+    
+    # Add other updates
+    if update_data.status is not None:
+        update_dict['status'] = update_data.status
+    if update_data.paid_at is not None:
+        update_dict['paid_at'] = update_data.paid_at.isoformat()
+    if update_data.stripe_payment_intent_id is not None:
+        update_dict['stripe_payment_intent_id'] = update_data.stripe_payment_intent_id
+    
     if update_dict:
         update_dict['updated_at'] = datetime.now(timezone.utc).isoformat()
-        if 'paid_at' in update_dict and update_dict['paid_at']:
-            update_dict['paid_at'] = update_dict['paid_at'].isoformat()
         await db.invoices.update_one({"id": invoice_id}, {"$set": update_dict})
     
     updated_invoice = await db.invoices.find_one({"id": invoice_id}, {"_id": 0})
