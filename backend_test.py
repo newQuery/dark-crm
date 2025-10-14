@@ -403,9 +403,41 @@ class nQCrmAPITester:
                     data=update_data
                 )
                 
+                # Test PDF generation (Phase 4)
+                self.test_invoice_pdf(invoice_id)
+                
                 return invoice_id
         
         return None
+    
+    def test_invoice_pdf(self, invoice_id):
+        """Test invoice PDF generation (Phase 4)"""
+        print("\n" + "="*50)
+        print("TESTING INVOICE PDF GENERATION (Phase 4)")
+        print("="*50)
+        
+        url = f"{self.base_url}/api/invoices/{invoice_id}/pdf"
+        headers = {'Authorization': f'Bearer {self.token}'}
+        
+        print(f"\n🔍 Testing PDF generation for invoice {invoice_id}...")
+        print(f"   URL: {url}")
+        
+        try:
+            response = requests.get(url, headers=headers, timeout=30)
+            
+            if response.status_code == 200:
+                # Check if response is PDF
+                content_type = response.headers.get('Content-Type', '')
+                if 'application/pdf' in content_type:
+                    pdf_size = len(response.content)
+                    self.log_result("Generate invoice PDF", True, f"PDF size: {pdf_size} bytes")
+                    print(f"   PDF generated successfully ({pdf_size} bytes)")
+                else:
+                    self.log_result("Generate invoice PDF", False, f"Wrong content type: {content_type}")
+            else:
+                self.log_result("Generate invoice PDF", False, f"Expected 200, got {response.status_code}")
+        except Exception as e:
+            self.log_result("Generate invoice PDF", False, f"Exception: {str(e)}")
 
     def test_payments(self):
         """Test payments endpoints"""
