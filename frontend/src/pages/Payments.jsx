@@ -109,6 +109,7 @@ export default function Payments() {
               <TableHead className="text-[color:var(--fg-secondary)]">Status</TableHead>
               <TableHead className="text-[color:var(--fg-secondary)]">Date</TableHead>
               <TableHead className="text-[color:var(--fg-secondary)]">Transaction ID</TableHead>
+              <TableHead className="text-[color:var(--fg-secondary)] text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
