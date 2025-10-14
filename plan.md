@@ -114,6 +114,17 @@ Add complete action buttons for all entities:
 - UI refinements per design; accessibility checks; performance passes
 - Error boundary components + robust empty/loading visuals
 
+### Phase 4 – Detail Pages & Enhanced Features (In Progress)
+
+Convert view dialogs to full pages with enhanced functionality:
+- **Project Detail Page**: View all info + add/list/remove deliverables (file downloads)
+- **Client Detail Page**: Full client information view
+- **Invoice Detail Page**: Complete invoice view + PDF download button (professional design with logo)
+- **Payment Detail Page**: Complete transaction details
+- Update routing and navigation
+- Backend: Deliverables management API endpoints
+- Backend: PDF invoice generation with reportlab
+
 ### Phase 5 – Advanced Features (Future)
 - 2FA (time-based OTP) for admin user
 - Export/Import CSVs for invoices and clients
