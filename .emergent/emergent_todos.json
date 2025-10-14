@@ -1,46 +1,50 @@
 [
   {
-    "content": "Add View Detail, Edit, and Delete action buttons to Projects table",
-    "status": "completed"
+    "content": "Backend: Add deliverables API endpoints (add, list, delete deliverables for projects)",
+    "status": "pending"
   },
   {
-    "content": "Implement Edit Project dialog with pre-filled form data",
-    "status": "completed"
+    "content": "Backend: Install reportlab and add PDF invoice generation endpoint",
+    "status": "pending"
   },
   {
-    "content": "Add Delete Project with confirmation dialog",
-    "status": "completed"
+    "content": "Backend: Update Project model to include deliverables array",
+    "status": "pending"
   },
   {
-    "content": "Add View Detail, Edit, and Delete action buttons to Clients table",
-    "status": "completed"
+    "content": "Frontend: Create ProjectDetail page with deliverables management UI",
+    "status": "pending"
   },
   {
-    "content": "Implement Edit Client dialog with pre-filled form data",
-    "status": "completed"
+    "content": "Frontend: Create ClientDetail page",
+    "status": "pending"
   },
   {
-    "content": "Add Delete Client with confirmation dialog",
-    "status": "completed"
+    "content": "Frontend: Create InvoiceDetail page with PDF download button",
+    "status": "pending"
   },
   {
-    "content": "Add View Detail, Edit, and Delete action buttons to Invoices table",
-    "status": "completed"
+    "content": "Frontend: Create PaymentDetail page",
+    "status": "pending"
   },
   {
-    "content": "Implement Edit Invoice dialog with pre-filled form data",
-    "status": "completed"
+    "content": "Frontend: Add routing for all detail pages (/projects/:id, /clients/:id, /invoices/:id, /payments/:id)",
+    "status": "pending"
   },
   {
-    "content": "Add Delete Invoice with confirmation dialog",
-    "status": "completed"
+    "content": "Frontend: Update view buttons to navigate to detail pages instead of opening dialogs",
+    "status": "pending"
   },
   {
-    "content": "Add View Detail dialog for Payments with full transaction info",
-    "status": "completed"
+    "content": "Test deliverables upload/list/delete functionality",
+    "status": "pending"
   },
   {
-    "content": "Test all CRUD operations for each entity",
-    "status": "completed"
+    "content": "Test PDF invoice generation and download",
+    "status": "pending"
+  },
+  {
+    "content": "Test all detail pages navigation and display",
+    "status": "pending"
   }
 ]
