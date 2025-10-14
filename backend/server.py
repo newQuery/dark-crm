@@ -554,23 +554,61 @@ async def delete_project(project_id: str, current_user: User = Depends(get_curre
 
 # ==================== PROJECT DELIVERABLES ROUTES ====================
 
-class DeliverableCreate(BaseModel):
-    name: str
-    file_url: str
-    file_size: Optional[int] = None
+# Create uploads directory
+UPLOADS_DIR = Path("/app/uploads/deliverables")
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Allowed file extensions
+ALLOWED_EXTENSIONS = {
+    '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.csv',
+    '.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp',
+    '.zip', '.rar', '.tar', '.gz', '.txt', '.md'
+}
 
 @api_router.post("/projects/{project_id}/deliverables", response_model=Deliverable)
 async def add_deliverable(
     project_id: str,
-    deliverable_data: DeliverableCreate,
+    name: str = Form(...),
+    file: UploadFile = File(...),
     current_user: User = Depends(get_current_user)
 ):
-    """Add a deliverable to a project"""
+    """Add a deliverable to a project with file upload"""
     project = await db.projects.find_one({"id": project_id}, {"_id": 0})
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     
-    deliverable = Deliverable(**deliverable_data.model_dump())
+    # Validate file extension
+    file_ext = Path(file.filename).suffix.lower()
+    if file_ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File type {file_ext} not allowed. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}"
+        )
+    
+    # Generate unique filename
+    unique_id = str(uuid.uuid4())
+    safe_filename = f"{unique_id}_{file.filename}"
+    file_path = UPLOADS_DIR / safe_filename
+    
+    # Save file
+    content = await file.read()
+    file_size = len(content)
+    
+    # Check file size (max 10MB)
+    if file_size > 10 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File size exceeds 10MB limit")
+    
+    with open(file_path, "wb") as f:
+        f.write(content)
+    
+    # Create deliverable
+    deliverable = Deliverable(
+        name=name,
+        filename=file.filename,
+        file_path=str(file_path),
+        file_size=file_size,
+        file_type=file.content_type or "application/octet-stream"
+    )
     deliverable_dict = deliverable.model_dump()
     deliverable_dict['uploaded_at'] = deliverable_dict['uploaded_at'].isoformat()
     
@@ -588,7 +626,7 @@ async def add_deliverable(
         type="deliverable_added",
         entity_type="project",
         entity_id=project_id,
-        message=f"Deliverable '{deliverable.name}' added to project",
+        message=f"Deliverable '{deliverable.name}' ({file.filename}) added to project",
         actor=current_user.name
     )
     activity_dict = activity.model_dump()
