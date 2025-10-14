@@ -113,7 +113,7 @@ export default function Invoices() {
       <TableBody>
         {loading ? (
           <TableRow>
-            <TableCell colSpan={6} className="text-center text-[color:var(--fg-secondary)]">Loading...</TableCell>
+            <TableCell colSpan={7} className="text-center text-[color:var(--fg-secondary)]">Loading...</TableCell>
           </TableRow>
         ) : invoices.length > 0 ? (
           invoices.map((invoice) => (
