@@ -965,6 +965,118 @@ async def delete_invoice(invoice_id: str, current_user: User = Depends(get_curre
     return {"message": "Invoice deleted successfully"}
 
 
+# ==================== INVOICE PAYMENT LINK ====================
+
+class PaymentLinkResponse(BaseModel):
+    payment_link: str
+    checkout_session_id: str
+
+@api_router.post("/invoices/{invoice_id}/payment-link", response_model=PaymentLinkResponse)
+async def create_payment_link(invoice_id: str, current_user: User = Depends(get_current_user)):
+    """Generate a Stripe Checkout Session for invoice payment"""
+    invoice = await db.invoices.find_one({"id": invoice_id}, {"_id": 0})
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    if invoice['status'] == 'paid':
+        raise HTTPException(status_code=400, detail="Invoice is already paid")
+    
+    # Get client for email
+    client = await db.clients.find_one({"id": invoice['client_id']}, {"_id": 0})
+    
+    # Get frontend URL from env or use default
+    frontend_url = os.environ.get('FRONTEND_URL', 'https://nqcrm-app.preview.emergentagent.com')
+    
+    # Create line items for Stripe
+    stripe_line_items = []
+    for item in invoice.get('line_items', []):
+        stripe_line_items.append({
+            'price_data': {
+                'currency': 'eur',
+                'product_data': {
+                    'name': item['description'],
+                },
+                'unit_amount': int(item['unit_price'] * 100),  # Convert to cents
+            },
+            'quantity': int(item['quantity']),
+        })
+    
+    # Add TVA as a separate line item if applicable
+    if invoice.get('tva_amount', 0) > 0:
+        stripe_line_items.append({
+            'price_data': {
+                'currency': 'eur',
+                'product_data': {
+                    'name': f"TVA ({invoice['tva_rate']}%)",
+                },
+                'unit_amount': int(invoice['tva_amount'] * 100),
+            },
+            'quantity': 1,
+        })
+    
+    try:
+        # Create Stripe Checkout Session
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=stripe_line_items,
+            mode='payment',
+            success_url=f"{frontend_url}/payment/success?session_id={{CHECKOUT_SESSION_ID}}&invoice_id={invoice_id}",
+            cancel_url=f"{frontend_url}/payment/cancel?invoice_id={invoice_id}",
+            client_reference_id=invoice_id,
+            customer_email=client['email'] if client else None,
+            metadata={
+                'invoice_id': invoice_id,
+                'invoice_number': invoice['number']
+            }
+        )
+        
+        # Update invoice with payment link and session ID
+        await db.invoices.update_one(
+            {"id": invoice_id},
+            {
+                "$set": {
+                    "payment_link": session.url,
+                    "stripe_checkout_session_id": session.id,
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }
+            }
+        )
+        
+        return PaymentLinkResponse(
+            payment_link=session.url,
+            checkout_session_id=session.id
+        )
+    
+    except stripe.error.StripeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@api_router.get("/invoices/{invoice_id}/public", response_model=Invoice)
+async def get_public_invoice(invoice_id: str):
+    """Get invoice details for public payment page (no auth required)"""
+    invoice = await db.invoices.find_one({"id": invoice_id}, {"_id": 0})
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    # Convert datetime strings
+    for field in ['created_at', 'updated_at', 'issued_date', 'due_date']:
+        if isinstance(invoice.get(field), str):
+            invoice[field] = datetime.fromisoformat(invoice[field])
+    if invoice.get('paid_at') and isinstance(invoice['paid_at'], str):
+        invoice['paid_at'] = datetime.fromisoformat(invoice['paid_at'])
+    
+    # Populate client and project names
+    client = await db.clients.find_one({"id": invoice['client_id']}, {"_id": 0, "name": 1})
+    if client:
+        invoice['client_name'] = client['name']
+    
+    if invoice.get('project_id'):
+        project = await db.projects.find_one({"id": invoice['project_id']}, {"_id": 0, "title": 1})
+        if project:
+            invoice['project_title'] = project['title']
+    
+    return Invoice(**invoice)
+
+
 # ==================== PDF INVOICE GENERATION ====================
 
 @api_router.get("/invoices/{invoice_id}/pdf")
