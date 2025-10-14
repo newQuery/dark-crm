@@ -223,66 +223,6 @@ export default function Invoices() {
           <Plus size={16} /> New Invoice
         </Button>
       </div>
-              <DialogTitle className="text-[color:var(--fg-primary)]">Create New Invoice</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleCreate} className="space-y-4" data-testid="create-invoice-form">
-              <div className="space-y-2">
-                <Label htmlFor="client_id">Client</Label>
-                <Select value={formData.client_id} onValueChange={(value) => setFormData({ ...formData, client_id: value })} required>
-                  <SelectTrigger className="bg-[color:var(--bg-muted)] border-[color:var(--border-default)]">
-                    <SelectValue placeholder="Select client" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)]">
-                    {clients.map((client) => (
-                      <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="project_id">Project (Optional)</Label>
-                <Select value={formData.project_id} onValueChange={(value) => setFormData({ ...formData, project_id: value })}>
-                  <SelectTrigger className="bg-[color:var(--bg-muted)] border-[color:var(--border-default)]">
-                    <SelectValue placeholder="Select project" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)]">
-                    {projects.map((project) => (
-                      <SelectItem key={project.id} value={project.id}>{project.title}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="amount">Amount ($)</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  step="0.01"
-                  value={formData.amount}
-                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                  required
-                  className="bg-[color:var(--bg-muted)] border-[color:var(--border-default)]"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="due_date">Due Date</Label>
-                <Input
-                  id="due_date"
-                  type="date"
-                  value={formData.due_date}
-                  onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                  required
-                  className="bg-[color:var(--bg-muted)] border-[color:var(--border-default)]"
-                />
-              </div>
-              <div className="flex gap-2 justify-end pt-4">
-                <Button type="button" variant="ghost" onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
-                <Button type="submit" data-testid="create-invoice-submit" className="bg-emerald-500 text-black hover:bg-emerald-400 font-medium">Create Invoice</Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
 
       <Card className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)] shadow-[var(--shadow-soft)]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
