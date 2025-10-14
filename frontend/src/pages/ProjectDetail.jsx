@@ -205,15 +205,20 @@ export default function ProjectDetail() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="file_url">File URL</Label>
+                      <Label htmlFor="file">File</Label>
                       <Input
-                        id="file_url"
-                        value={formData.file_url}
-                        onChange={(e) => setFormData({ ...formData, file_url: e.target.value })}
-                        placeholder="https://example.com/file.zip"
+                        id="file"
+                        type="file"
+                        onChange={handleFileChange}
                         required
                         className="bg-[color:var(--bg-muted)] border-[color:var(--border-default)]"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png,.gif,.svg,.webp,.zip,.rar,.tar,.gz,.txt,.md"
                       />
+                      {selectedFile && (
+                        <p className="text-xs text-[color:var(--fg-secondary)] mt-2">
+                          Selected: {selectedFile.name} ({formatFileSize(selectedFile.size)})
+                        </p>
+                      )}
                     </div>
                     <div className="flex gap-2 justify-end pt-4">
                       <Button type="button" variant="ghost" onClick={() => setAddDialogOpen(false)}>Cancel</Button>
