@@ -1,6 +1,6 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File, Form
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -103,8 +103,10 @@ class Deliverable(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
-    file_url: str
-    file_size: Optional[int] = None
+    filename: str
+    file_path: str
+    file_size: int
+    file_type: str
     uploaded_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class Project(BaseModel):
