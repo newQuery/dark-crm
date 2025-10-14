@@ -1,30 +1,46 @@
 [
   {
-    "content": "Implement Stripe webhook endpoint with signature verification for payment_intent.succeeded events",
-    "status": "completed"
+    "content": "Add View Detail, Edit, and Delete action buttons to Projects table",
+    "status": "pending"
   },
   {
-    "content": "Add automatic invoice status update when payment succeeds via webhook",
-    "status": "completed"
+    "content": "Implement Edit Project dialog with pre-filled form data",
+    "status": "pending"
   },
   {
-    "content": "Create activity log entries for all CRUD operations (create, update, delete)",
-    "status": "completed"
+    "content": "Add Delete Project with confirmation dialog",
+    "status": "pending"
   },
   {
-    "content": "Implement real-time polling on Dashboard (refresh metrics/activity every 15 seconds)",
-    "status": "completed"
+    "content": "Add View Detail, Edit, and Delete action buttons to Clients table",
+    "status": "pending"
   },
   {
-    "content": "Add WebSocket endpoint for real-time push updates (optional enhancement)",
-    "status": "completed"
+    "content": "Implement Edit Client dialog with pre-filled form data",
+    "status": "pending"
   },
   {
-    "content": "Test webhook with Stripe CLI or test payment",
-    "status": "completed"
+    "content": "Add Delete Client with confirmation dialog",
+    "status": "pending"
   },
   {
-    "content": "Verify real-time updates work correctly on Dashboard",
-    "status": "completed"
+    "content": "Add View Detail, Edit, and Delete action buttons to Invoices table",
+    "status": "pending"
+  },
+  {
+    "content": "Implement Edit Invoice dialog with pre-filled form data",
+    "status": "pending"
+  },
+  {
+    "content": "Add Delete Invoice with confirmation dialog",
+    "status": "pending"
+  },
+  {
+    "content": "Add View Detail dialog for Payments with full transaction info",
+    "status": "pending"
+  },
+  {
+    "content": "Test all CRUD operations for each entity",
+    "status": "pending"
   }
 ]
