@@ -129,6 +129,17 @@ export default function Payments() {
                   </TableCell>
                   <TableCell className="text-[color:var(--fg-secondary)]">{new Date(payment.created_at).toLocaleDateString()}</TableCell>
                   <TableCell className="text-xs font-mono text-[color:var(--fg-tertiary)]">{payment.stripe_payment_intent_id || 'N/A'}</TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => { setSelectedPayment(payment); setViewDialogOpen(true); }}
+                      data-testid={`view-payment-${payment.id}`}
+                      className="hover:bg-white/10"
+                    >
+                      <Eye size={16} />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
