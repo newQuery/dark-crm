@@ -1,7 +1,7 @@
 [
   {
     "content": "Implement Stripe webhook endpoint with signature verification for payment_intent.succeeded events",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Add automatic invoice status update when payment succeeds via webhook",
