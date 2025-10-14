@@ -25,11 +25,11 @@
   },
   {
     "content": "Restart backend and frontend services via supervisorctl",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Test frontend compilation with esbuild and check service logs",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Take screenshots and verify UI matches design guidelines",
