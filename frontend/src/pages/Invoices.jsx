@@ -309,60 +309,6 @@ export default function Invoices() {
         </Tabs>
       </Card>
 
-      {/* View Dialog */}
-      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)] sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-[color:var(--fg-primary)]">Invoice Details</DialogTitle>
-          </DialogHeader>
-          {selectedInvoice && (
-            <div className="space-y-4">
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Invoice Number</Label>
-                <p className="text-[color:var(--fg-primary)] font-medium">{selectedInvoice.number}</p>
-              </div>
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Client</Label>
-                <p className="text-[color:var(--fg-primary)]">{selectedInvoice.client_name || 'N/A'}</p>
-              </div>
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Project</Label>
-                <p className="text-[color:var(--fg-primary)]">{selectedInvoice.project_title || 'N/A'}</p>
-              </div>
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Amount</Label>
-                <p className="text-[color:var(--fg-primary)] font-medium text-lg">${selectedInvoice.amount.toLocaleString()}</p>
-              </div>
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Status</Label>
-                <div className="mt-1">
-                  <Badge className={getStatusColor(selectedInvoice.status)}>
-                    {selectedInvoice.status}
-                  </Badge>
-                </div>
-              </div>
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Issued Date</Label>
-                <p className="text-[color:var(--fg-primary)]">{new Date(selectedInvoice.issued_date).toLocaleDateString()}</p>
-              </div>
-              <div>
-                <Label className="text-[color:var(--fg-secondary)] text-sm">Due Date</Label>
-                <p className="text-[color:var(--fg-primary)]">{new Date(selectedInvoice.due_date).toLocaleDateString()}</p>
-              </div>
-              {selectedInvoice.paid_at && (
-                <div>
-                  <Label className="text-[color:var(--fg-secondary)] text-sm">Paid At</Label>
-                  <p className="text-[color:var(--fg-primary)]">{new Date(selectedInvoice.paid_at).toLocaleString()}</p>
-                </div>
-              )}
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setViewDialogOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)] sm:max-w-lg">
