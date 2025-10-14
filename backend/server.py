@@ -1,15 +1,18 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
+from typing import List, Optional
+from datetime import datetime, timezone, timedelta
+from jose import JWTError, jwt
+from passlib.context import CryptContext
 import os
 import logging
-from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
 import uuid
-from datetime import datetime, timezone
-
+import stripe
+from pathlib import Path
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -19,6 +22,20 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# JWT Configuration
+JWT_SECRET = os.environ['JWT_SECRET']
+JWT_ALGORITHM = os.environ.get('JWT_ALGORITHM', 'HS256')
+JWT_EXPIRATION_HOURS = int(os.environ.get('JWT_EXPIRATION_HOURS', 24))
+
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Stripe Configuration
+stripe.api_key = os.environ['STRIPE_SECRET_KEY']
+
+# Security
+security = HTTPBearer()
+
 # Create the main app without a prefix
 app = FastAPI()
 
@@ -26,45 +43,834 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
+# ==================== MODELS ====================
+
+class User(BaseModel):
+    model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
+    email: EmailStr
+    name: str
+    role: str = "admin"
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    name: str
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: User
+
+class Client(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    email: EmailStr
+    company: Optional[str] = None
+    phone: Optional[str] = None
+    project_ids: List[str] = []
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ClientCreate(BaseModel):
+    name: str
+    email: EmailStr
+    company: Optional[str] = None
+    phone: Optional[str] = None
+
+class ClientUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    company: Optional[str] = None
+    phone: Optional[str] = None
+
+class Project(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    client_id: str
+    client_name: Optional[str] = None
+    status: str = "active"  # active, completed, on-hold
+    deadline: Optional[datetime] = None
+    total_value: float = 0.0
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ProjectCreate(BaseModel):
+    title: str
+    client_id: str
+    status: str = "active"
+    deadline: Optional[datetime] = None
+    total_value: float = 0.0
+
+class ProjectUpdate(BaseModel):
+    title: Optional[str] = None
+    client_id: Optional[str] = None
+    status: Optional[str] = None
+    deadline: Optional[datetime] = None
+    total_value: Optional[float] = None
+
+class Invoice(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    number: str
+    client_id: str
+    client_name: Optional[str] = None
+    project_id: Optional[str] = None
+    project_title: Optional[str] = None
+    amount: float
+    currency: str = "usd"
+    status: str = "pending"  # paid, pending, overdue
+    due_date: datetime
+    issued_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    paid_at: Optional[datetime] = None
+    stripe_payment_intent_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class InvoiceCreate(BaseModel):
+    client_id: str
+    project_id: Optional[str] = None
+    amount: float
+    currency: str = "usd"
+    due_date: datetime
+
+class InvoiceUpdate(BaseModel):
+    status: Optional[str] = None
+    paid_at: Optional[datetime] = None
+    stripe_payment_intent_id: Optional[str] = None
+
+class Payment(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    invoice_id: Optional[str] = None
+    client_id: str
+    client_name: Optional[str] = None
+    amount: float
+    currency: str = "usd"
+    status: str  # succeeded, pending, failed
+    stripe_charge_id: Optional[str] = None
+    stripe_payment_intent_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class PaymentIntentRequest(BaseModel):
+    invoice_id: str
+
+class PaymentIntentResponse(BaseModel):
+    client_secret: str
+    payment_intent_id: str
+
+class Activity(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    type: str  # client_added, project_created, invoice_paid, etc.
+    entity_type: str  # client, project, invoice, payment
+    entity_id: str
+    message: str
+    actor: str = "System"
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+class Metrics(BaseModel):
+    total_revenue: float
+    active_projects: int
+    total_clients: int
+    mrr: float
 
-# Add your routes to the router instead of directly to app
-@api_router.get("/")
-async def root():
-    return {"message": "Hello World"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
+# ==================== AUTH HELPERS ====================
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def create_access_token(data: dict) -> str:
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRATION_HOURS)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> User:
+    try:
+        token = credentials.credentials
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
+    user_doc = await db.users.find_one({"id": user_id}, {"_id": 0})
+    if user_doc is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     
-    return status_checks
+    if isinstance(user_doc['created_at'], str):
+        user_doc['created_at'] = datetime.fromisoformat(user_doc['created_at'])
+    
+    return User(**user_doc)
+
+
+# ==================== SEED DATA ====================
+
+async def seed_default_user():
+    """Create default admin user if not exists"""
+    existing_user = await db.users.find_one({"email": "admin@nqcrm.com"})
+    if not existing_user:
+        user = User(
+            email="admin@nqcrm.com",
+            name="Admin User",
+            role="admin"
+        )
+        user_dict = user.model_dump()
+        user_dict['password_hash'] = hash_password("admin123")
+        user_dict['created_at'] = user_dict['created_at'].isoformat()
+        await db.users.insert_one(user_dict)
+        logging.info("Default admin user created")
+
+async def seed_sample_data():
+    """Seed sample clients, projects, invoices, and activities"""
+    # Check if data already exists
+    existing_clients = await db.clients.count_documents({})
+    if existing_clients > 0:
+        return
+    
+    # Sample Clients
+    clients_data = [
+        {"name": "Acme Corporation", "email": "contact@acmecorp.com", "company": "Acme Corp", "phone": "+1-555-0100"},
+        {"name": "TechStart Inc", "email": "hello@techstart.io", "company": "TechStart", "phone": "+1-555-0200"},
+        {"name": "Global Solutions", "email": "info@globalsolutions.com", "company": "Global Solutions Ltd", "phone": "+1-555-0300"},
+    ]
+    
+    clients = []
+    for c_data in clients_data:
+        client = Client(**c_data)
+        client_dict = client.model_dump()
+        client_dict['created_at'] = client_dict['created_at'].isoformat()
+        client_dict['updated_at'] = client_dict['updated_at'].isoformat()
+        await db.clients.insert_one(client_dict)
+        clients.append(client)
+    
+    # Sample Projects
+    projects_data = [
+        {"title": "Website Redesign", "client_id": clients[0].id, "status": "active", "total_value": 15000.0, "deadline": datetime.now(timezone.utc) + timedelta(days=30)},
+        {"title": "Mobile App Development", "client_id": clients[1].id, "status": "active", "total_value": 45000.0, "deadline": datetime.now(timezone.utc) + timedelta(days=60)},
+        {"title": "SEO Optimization", "client_id": clients[0].id, "status": "completed", "total_value": 8000.0, "deadline": datetime.now(timezone.utc) - timedelta(days=10)},
+        {"title": "CRM Integration", "client_id": clients[2].id, "status": "active", "total_value": 25000.0, "deadline": datetime.now(timezone.utc) + timedelta(days=45)},
+    ]
+    
+    projects = []
+    for p_data in projects_data:
+        project = Project(**p_data)
+        project_dict = project.model_dump()
+        project_dict['created_at'] = project_dict['created_at'].isoformat()
+        project_dict['updated_at'] = project_dict['updated_at'].isoformat()
+        if project_dict['deadline']:
+            project_dict['deadline'] = project_dict['deadline'].isoformat()
+        await db.projects.insert_one(project_dict)
+        projects.append(project)
+    
+    # Sample Invoices
+    invoices_data = [
+        {"client_id": clients[0].id, "project_id": projects[0].id, "amount": 7500.0, "status": "paid", "due_date": datetime.now(timezone.utc) - timedelta(days=5), "paid_at": datetime.now(timezone.utc) - timedelta(days=3)},
+        {"client_id": clients[1].id, "project_id": projects[1].id, "amount": 15000.0, "status": "pending", "due_date": datetime.now(timezone.utc) + timedelta(days=15)},
+        {"client_id": clients[0].id, "project_id": projects[2].id, "amount": 8000.0, "status": "paid", "due_date": datetime.now(timezone.utc) - timedelta(days=20), "paid_at": datetime.now(timezone.utc) - timedelta(days=15)},
+        {"client_id": clients[2].id, "project_id": projects[3].id, "amount": 12500.0, "status": "overdue", "due_date": datetime.now(timezone.utc) - timedelta(days=2)},
+    ]
+    
+    invoice_counter = 1001
+    for i_data in invoices_data:
+        invoice = Invoice(**i_data, number=f"INV-{invoice_counter}")
+        invoice_dict = invoice.model_dump()
+        invoice_dict['created_at'] = invoice_dict['created_at'].isoformat()
+        invoice_dict['updated_at'] = invoice_dict['updated_at'].isoformat()
+        invoice_dict['issued_date'] = invoice_dict['issued_date'].isoformat()
+        invoice_dict['due_date'] = invoice_dict['due_date'].isoformat()
+        if invoice_dict['paid_at']:
+            invoice_dict['paid_at'] = invoice_dict['paid_at'].isoformat()
+        await db.invoices.insert_one(invoice_dict)
+        invoice_counter += 1
+        
+        # Create payment records for paid invoices
+        if i_data['status'] == 'paid':
+            payment = Payment(
+                invoice_id=invoice.id,
+                client_id=i_data['client_id'],
+                amount=i_data['amount'],
+                status="succeeded",
+                stripe_payment_intent_id=f"pi_test_{uuid.uuid4().hex[:16]}"
+            )
+            payment_dict = payment.model_dump()
+            payment_dict['created_at'] = payment_dict['created_at'].isoformat()
+            await db.payments.insert_one(payment_dict)
+    
+    # Sample Activities
+    activities = [
+        Activity(type="client_added", entity_type="client", entity_id=clients[0].id, message=f"New client '{clients[0].name}' added"),
+        Activity(type="project_created", entity_type="project", entity_id=projects[0].id, message=f"Project '{projects[0].title}' created"),
+        Activity(type="invoice_paid", entity_type="invoice", entity_id="inv-1", message=f"Invoice INV-1001 paid by {clients[0].name}"),
+    ]
+    
+    for activity in activities:
+        activity_dict = activity.model_dump()
+        activity_dict['timestamp'] = activity_dict['timestamp'].isoformat()
+        await db.activity.insert_one(activity_dict)
+    
+    logging.info("Sample data seeded successfully")
+
+
+@app.on_event("startup")
+async def startup_event():
+    await seed_default_user()
+    await seed_sample_data()
+
+
+# ==================== AUTH ROUTES ====================
+
+@api_router.post("/auth/login", response_model=LoginResponse)
+async def login(request: LoginRequest):
+    user_doc = await db.users.find_one({"email": request.email}, {"_id": 0})
+    if not user_doc:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    
+    if not verify_password(request.password, user_doc['password_hash']):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    
+    if isinstance(user_doc['created_at'], str):
+        user_doc['created_at'] = datetime.fromisoformat(user_doc['created_at'])
+    
+    user = User(**{k: v for k, v in user_doc.items() if k != 'password_hash'})
+    access_token = create_access_token({"sub": user.id})
+    
+    return LoginResponse(access_token=access_token, user=user)
+
+@api_router.get("/auth/me", response_model=User)
+async def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
+# ==================== CLIENTS ROUTES ====================
+
+@api_router.get("/clients", response_model=List[Client])
+async def get_clients(current_user: User = Depends(get_current_user)):
+    clients = await db.clients.find({}, {"_id": 0}).to_list(1000)
+    for client in clients:
+        if isinstance(client['created_at'], str):
+            client['created_at'] = datetime.fromisoformat(client['created_at'])
+        if isinstance(client['updated_at'], str):
+            client['updated_at'] = datetime.fromisoformat(client['updated_at'])
+    return clients
+
+@api_router.get("/clients/{client_id}", response_model=Client)
+async def get_client(client_id: str, current_user: User = Depends(get_current_user)):
+    client = await db.clients.find_one({"id": client_id}, {"_id": 0})
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    if isinstance(client['created_at'], str):
+        client['created_at'] = datetime.fromisoformat(client['created_at'])
+    if isinstance(client['updated_at'], str):
+        client['updated_at'] = datetime.fromisoformat(client['updated_at'])
+    return Client(**client)
+
+@api_router.post("/clients", response_model=Client)
+async def create_client(client_data: ClientCreate, current_user: User = Depends(get_current_user)):
+    client = Client(**client_data.model_dump())
+    client_dict = client.model_dump()
+    client_dict['created_at'] = client_dict['created_at'].isoformat()
+    client_dict['updated_at'] = client_dict['updated_at'].isoformat()
+    await db.clients.insert_one(client_dict)
+    
+    # Log activity
+    activity = Activity(
+        type="client_added",
+        entity_type="client",
+        entity_id=client.id,
+        message=f"New client '{client.name}' added",
+        actor=current_user.name
+    )
+    activity_dict = activity.model_dump()
+    activity_dict['timestamp'] = activity_dict['timestamp'].isoformat()
+    await db.activity.insert_one(activity_dict)
+    
+    return client
+
+@api_router.patch("/clients/{client_id}", response_model=Client)
+async def update_client(client_id: str, update_data: ClientUpdate, current_user: User = Depends(get_current_user)):
+    existing = await db.clients.find_one({"id": client_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Client not found")
+    
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    if update_dict:
+        update_dict['updated_at'] = datetime.now(timezone.utc).isoformat()
+        await db.clients.update_one({"id": client_id}, {"$set": update_dict})
+    
+    updated_client = await db.clients.find_one({"id": client_id}, {"_id": 0})
+    if isinstance(updated_client['created_at'], str):
+        updated_client['created_at'] = datetime.fromisoformat(updated_client['created_at'])
+    if isinstance(updated_client['updated_at'], str):
+        updated_client['updated_at'] = datetime.fromisoformat(updated_client['updated_at'])
+    return Client(**updated_client)
+
+@api_router.delete("/clients/{client_id}")
+async def delete_client(client_id: str, current_user: User = Depends(get_current_user)):
+    result = await db.clients.delete_one({"id": client_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Client not found")
+    return {"message": "Client deleted successfully"}
+
+
+# ==================== PROJECTS ROUTES ====================
+
+@api_router.get("/projects", response_model=List[Project])
+async def get_projects(current_user: User = Depends(get_current_user)):
+    projects = await db.projects.find({}, {"_id": 0}).to_list(1000)
+    for project in projects:
+        if isinstance(project['created_at'], str):
+            project['created_at'] = datetime.fromisoformat(project['created_at'])
+        if isinstance(project['updated_at'], str):
+            project['updated_at'] = datetime.fromisoformat(project['updated_at'])
+        if project.get('deadline') and isinstance(project['deadline'], str):
+            project['deadline'] = datetime.fromisoformat(project['deadline'])
+        
+        # Populate client name
+        if project.get('client_id'):
+            client = await db.clients.find_one({"id": project['client_id']}, {"_id": 0, "name": 1})
+            if client:
+                project['client_name'] = client['name']
+    return projects
+
+@api_router.get("/projects/{project_id}", response_model=Project)
+async def get_project(project_id: str, current_user: User = Depends(get_current_user)):
+    project = await db.projects.find_one({"id": project_id}, {"_id": 0})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    if isinstance(project['created_at'], str):
+        project['created_at'] = datetime.fromisoformat(project['created_at'])
+    if isinstance(project['updated_at'], str):
+        project['updated_at'] = datetime.fromisoformat(project['updated_at'])
+    if project.get('deadline') and isinstance(project['deadline'], str):
+        project['deadline'] = datetime.fromisoformat(project['deadline'])
+    
+    # Populate client name
+    if project.get('client_id'):
+        client = await db.clients.find_one({"id": project['client_id']}, {"_id": 0, "name": 1})
+        if client:
+            project['client_name'] = client['name']
+    
+    return Project(**project)
+
+@api_router.post("/projects", response_model=Project)
+async def create_project(project_data: ProjectCreate, current_user: User = Depends(get_current_user)):
+    project = Project(**project_data.model_dump())
+    project_dict = project.model_dump()
+    project_dict['created_at'] = project_dict['created_at'].isoformat()
+    project_dict['updated_at'] = project_dict['updated_at'].isoformat()
+    if project_dict['deadline']:
+        project_dict['deadline'] = project_dict['deadline'].isoformat()
+    await db.projects.insert_one(project_dict)
+    
+    # Log activity
+    activity = Activity(
+        type="project_created",
+        entity_type="project",
+        entity_id=project.id,
+        message=f"Project '{project.title}' created",
+        actor=current_user.name
+    )
+    activity_dict = activity.model_dump()
+    activity_dict['timestamp'] = activity_dict['timestamp'].isoformat()
+    await db.activity.insert_one(activity_dict)
+    
+    # Populate client name
+    client = await db.clients.find_one({"id": project.client_id}, {"_id": 0, "name": 1})
+    if client:
+        project.client_name = client['name']
+    
+    return project
+
+@api_router.patch("/projects/{project_id}", response_model=Project)
+async def update_project(project_id: str, update_data: ProjectUpdate, current_user: User = Depends(get_current_user)):
+    existing = await db.projects.find_one({"id": project_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    if update_dict:
+        update_dict['updated_at'] = datetime.now(timezone.utc).isoformat()
+        if 'deadline' in update_dict and update_dict['deadline']:
+            update_dict['deadline'] = update_dict['deadline'].isoformat()
+        await db.projects.update_one({"id": project_id}, {"$set": update_dict})
+    
+    updated_project = await db.projects.find_one({"id": project_id}, {"_id": 0})
+    if isinstance(updated_project['created_at'], str):
+        updated_project['created_at'] = datetime.fromisoformat(updated_project['created_at'])
+    if isinstance(updated_project['updated_at'], str):
+        updated_project['updated_at'] = datetime.fromisoformat(updated_project['updated_at'])
+    if updated_project.get('deadline') and isinstance(updated_project['deadline'], str):
+        updated_project['deadline'] = datetime.fromisoformat(updated_project['deadline'])
+    
+    # Populate client name
+    if updated_project.get('client_id'):
+        client = await db.clients.find_one({"id": updated_project['client_id']}, {"_id": 0, "name": 1})
+        if client:
+            updated_project['client_name'] = client['name']
+    
+    return Project(**updated_project)
+
+@api_router.delete("/projects/{project_id}")
+async def delete_project(project_id: str, current_user: User = Depends(get_current_user)):
+    result = await db.projects.delete_one({"id": project_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return {"message": "Project deleted successfully"}
+
+
+# ==================== INVOICES ROUTES ====================
+
+@api_router.get("/invoices", response_model=List[Invoice])
+async def get_invoices(current_user: User = Depends(get_current_user)):
+    invoices = await db.invoices.find({}, {"_id": 0}).to_list(1000)
+    for invoice in invoices:
+        if isinstance(invoice['created_at'], str):
+            invoice['created_at'] = datetime.fromisoformat(invoice['created_at'])
+        if isinstance(invoice['updated_at'], str):
+            invoice['updated_at'] = datetime.fromisoformat(invoice['updated_at'])
+        if isinstance(invoice['issued_date'], str):
+            invoice['issued_date'] = datetime.fromisoformat(invoice['issued_date'])
+        if isinstance(invoice['due_date'], str):
+            invoice['due_date'] = datetime.fromisoformat(invoice['due_date'])
+        if invoice.get('paid_at') and isinstance(invoice['paid_at'], str):
+            invoice['paid_at'] = datetime.fromisoformat(invoice['paid_at'])
+        
+        # Populate client and project names
+        if invoice.get('client_id'):
+            client = await db.clients.find_one({"id": invoice['client_id']}, {"_id": 0, "name": 1})
+            if client:
+                invoice['client_name'] = client['name']
+        
+        if invoice.get('project_id'):
+            project = await db.projects.find_one({"id": invoice['project_id']}, {"_id": 0, "title": 1})
+            if project:
+                invoice['project_title'] = project['title']
+    
+    return invoices
+
+@api_router.get("/invoices/{invoice_id}", response_model=Invoice)
+async def get_invoice(invoice_id: str, current_user: User = Depends(get_current_user)):
+    invoice = await db.invoices.find_one({"id": invoice_id}, {"_id": 0})
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    if isinstance(invoice['created_at'], str):
+        invoice['created_at'] = datetime.fromisoformat(invoice['created_at'])
+    if isinstance(invoice['updated_at'], str):
+        invoice['updated_at'] = datetime.fromisoformat(invoice['updated_at'])
+    if isinstance(invoice['issued_date'], str):
+        invoice['issued_date'] = datetime.fromisoformat(invoice['issued_date'])
+    if isinstance(invoice['due_date'], str):
+        invoice['due_date'] = datetime.fromisoformat(invoice['due_date'])
+    if invoice.get('paid_at') and isinstance(invoice['paid_at'], str):
+        invoice['paid_at'] = datetime.fromisoformat(invoice['paid_at'])
+    
+    # Populate client and project names
+    if invoice.get('client_id'):
+        client = await db.clients.find_one({"id": invoice['client_id']}, {"_id": 0, "name": 1})
+        if client:
+            invoice['client_name'] = client['name']
+    
+    if invoice.get('project_id'):
+        project = await db.projects.find_one({"id": invoice['project_id']}, {"_id": 0, "title": 1})
+        if project:
+            invoice['project_title'] = project['title']
+    
+    return Invoice(**invoice)
+
+@api_router.post("/invoices", response_model=Invoice)
+async def create_invoice(invoice_data: InvoiceCreate, current_user: User = Depends(get_current_user)):
+    # Generate invoice number
+    last_invoice = await db.invoices.find_one({}, {"_id": 0, "number": 1}, sort=[("created_at", -1)])
+    if last_invoice and last_invoice.get('number'):
+        try:
+            last_num = int(last_invoice['number'].split('-')[1])
+            invoice_number = f"INV-{last_num + 1}"
+        except:
+            invoice_number = f"INV-{1001}"
+    else:
+        invoice_number = "INV-1001"
+    
+    invoice = Invoice(**invoice_data.model_dump(), number=invoice_number)
+    invoice_dict = invoice.model_dump()
+    invoice_dict['created_at'] = invoice_dict['created_at'].isoformat()
+    invoice_dict['updated_at'] = invoice_dict['updated_at'].isoformat()
+    invoice_dict['issued_date'] = invoice_dict['issued_date'].isoformat()
+    invoice_dict['due_date'] = invoice_dict['due_date'].isoformat()
+    if invoice_dict['paid_at']:
+        invoice_dict['paid_at'] = invoice_dict['paid_at'].isoformat()
+    await db.invoices.insert_one(invoice_dict)
+    
+    # Log activity
+    activity = Activity(
+        type="invoice_created",
+        entity_type="invoice",
+        entity_id=invoice.id,
+        message=f"Invoice {invoice.number} created",
+        actor=current_user.name
+    )
+    activity_dict = activity.model_dump()
+    activity_dict['timestamp'] = activity_dict['timestamp'].isoformat()
+    await db.activity.insert_one(activity_dict)
+    
+    # Populate client and project names
+    client = await db.clients.find_one({"id": invoice.client_id}, {"_id": 0, "name": 1})
+    if client:
+        invoice.client_name = client['name']
+    
+    if invoice.project_id:
+        project = await db.projects.find_one({"id": invoice.project_id}, {"_id": 0, "title": 1})
+        if project:
+            invoice.project_title = project['title']
+    
+    return invoice
+
+@api_router.patch("/invoices/{invoice_id}", response_model=Invoice)
+async def update_invoice(invoice_id: str, update_data: InvoiceUpdate, current_user: User = Depends(get_current_user)):
+    existing = await db.invoices.find_one({"id": invoice_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    if update_dict:
+        update_dict['updated_at'] = datetime.now(timezone.utc).isoformat()
+        if 'paid_at' in update_dict and update_dict['paid_at']:
+            update_dict['paid_at'] = update_dict['paid_at'].isoformat()
+        await db.invoices.update_one({"id": invoice_id}, {"$set": update_dict})
+    
+    updated_invoice = await db.invoices.find_one({"id": invoice_id}, {"_id": 0})
+    if isinstance(updated_invoice['created_at'], str):
+        updated_invoice['created_at'] = datetime.fromisoformat(updated_invoice['created_at'])
+    if isinstance(updated_invoice['updated_at'], str):
+        updated_invoice['updated_at'] = datetime.fromisoformat(updated_invoice['updated_at'])
+    if isinstance(updated_invoice['issued_date'], str):
+        updated_invoice['issued_date'] = datetime.fromisoformat(updated_invoice['issued_date'])
+    if isinstance(updated_invoice['due_date'], str):
+        updated_invoice['due_date'] = datetime.fromisoformat(updated_invoice['due_date'])
+    if updated_invoice.get('paid_at') and isinstance(updated_invoice['paid_at'], str):
+        updated_invoice['paid_at'] = datetime.fromisoformat(updated_invoice['paid_at'])
+    
+    # Populate client and project names
+    if updated_invoice.get('client_id'):
+        client = await db.clients.find_one({"id": updated_invoice['client_id']}, {"_id": 0, "name": 1})
+        if client:
+            updated_invoice['client_name'] = client['name']
+    
+    if updated_invoice.get('project_id'):
+        project = await db.projects.find_one({"id": updated_invoice['project_id']}, {"_id": 0, "title": 1})
+        if project:
+            updated_invoice['project_title'] = project['title']
+    
+    return Invoice(**updated_invoice)
+
+@api_router.delete("/invoices/{invoice_id}")
+async def delete_invoice(invoice_id: str, current_user: User = Depends(get_current_user)):
+    result = await db.invoices.delete_one({"id": invoice_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    return {"message": "Invoice deleted successfully"}
+
+
+# ==================== PAYMENTS ROUTES ====================
+
+@api_router.get("/payments", response_model=List[Payment])
+async def get_payments(current_user: User = Depends(get_current_user)):
+    payments = await db.payments.find({}, {"_id": 0}).to_list(1000)
+    for payment in payments:
+        if isinstance(payment['created_at'], str):
+            payment['created_at'] = datetime.fromisoformat(payment['created_at'])
+        
+        # Populate client name
+        if payment.get('client_id'):
+            client = await db.clients.find_one({"id": payment['client_id']}, {"_id": 0, "name": 1})
+            if client:
+                payment['client_name'] = client['name']
+    
+    return payments
+
+@api_router.post("/payments/intent", response_model=PaymentIntentResponse)
+async def create_payment_intent(request: PaymentIntentRequest, current_user: User = Depends(get_current_user)):
+    # Get invoice
+    invoice = await db.invoices.find_one({"id": request.invoice_id}, {"_id": 0})
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    if invoice['status'] == 'paid':
+        raise HTTPException(status_code=400, detail="Invoice already paid")
+    
+    # Create Stripe payment intent
+    try:
+        intent = stripe.PaymentIntent.create(
+            amount=int(invoice['amount'] * 100),  # Stripe uses cents
+            currency=invoice['currency'],
+            metadata={
+                "invoice_id": invoice['id'],
+                "invoice_number": invoice['number']
+            }
+        )
+        
+        # Update invoice with payment intent ID
+        await db.invoices.update_one(
+            {"id": request.invoice_id},
+            {"$set": {"stripe_payment_intent_id": intent.id}}
+        )
+        
+        return PaymentIntentResponse(
+            client_secret=intent.client_secret,
+            payment_intent_id=intent.id
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create payment intent: {str(e)}")
+
+@api_router.get("/payments/transactions")
+async def get_stripe_transactions(current_user: User = Depends(get_current_user), limit: int = 50):
+    """Get recent Stripe payment intents"""
+    try:
+        payment_intents = stripe.PaymentIntent.list(limit=limit)
+        
+        transactions = []
+        for intent in payment_intents.data:
+            # Try to find matching invoice
+            invoice_id = intent.metadata.get('invoice_id') if intent.metadata else None
+            invoice_number = intent.metadata.get('invoice_number') if intent.metadata else None
+            
+            transactions.append({
+                "id": intent.id,
+                "amount": intent.amount / 100,  # Convert from cents
+                "currency": intent.currency,
+                "status": intent.status,
+                "created": datetime.fromtimestamp(intent.created, tz=timezone.utc),
+                "invoice_id": invoice_id,
+                "invoice_number": invoice_number,
+            })
+        
+        return transactions
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch transactions: {str(e)}")
+
+
+# ==================== METRICS ROUTES ====================
+
+@api_router.get("/metrics", response_model=Metrics)
+async def get_metrics(current_user: User = Depends(get_current_user)):
+    # Total revenue (sum of paid invoices)
+    paid_invoices = await db.invoices.find({"status": "paid"}, {"_id": 0, "amount": 1}).to_list(1000)
+    total_revenue = sum(inv['amount'] for inv in paid_invoices)
+    
+    # Active projects
+    active_projects = await db.projects.count_documents({"status": "active"})
+    
+    # Total clients
+    total_clients = await db.clients.count_documents({})
+    
+    # MRR (simplified: total revenue / 12)
+    mrr = total_revenue / 12 if total_revenue > 0 else 0
+    
+    return Metrics(
+        total_revenue=total_revenue,
+        active_projects=active_projects,
+        total_clients=total_clients,
+        mrr=mrr
+    )
+
+
+# ==================== ACTIVITY ROUTES ====================
+
+@api_router.get("/activity", response_model=List[Activity])
+async def get_activity(current_user: User = Depends(get_current_user), limit: int = 20):
+    activities = await db.activity.find({}, {"_id": 0}).sort("timestamp", -1).to_list(limit)
+    for activity in activities:
+        if isinstance(activity['timestamp'], str):
+            activity['timestamp'] = datetime.fromisoformat(activity['timestamp'])
+    return activities
+
+
+# ==================== CHART DATA ROUTES ====================
+
+@api_router.get("/charts/revenue")
+async def get_revenue_chart_data(current_user: User = Depends(get_current_user)):
+    """Get monthly revenue data for bar chart"""
+    # Simplified: return last 6 months with mock data
+    # In production, aggregate from database
+    now = datetime.now(timezone.utc)
+    months = []
+    for i in range(5, -1, -1):
+        month_date = now - timedelta(days=30 * i)
+        month_name = month_date.strftime("%b")
+        
+        # Get revenue for this month (simplified query)
+        start_date = month_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        if i == 0:
+            end_date = now
+        else:
+            end_date = start_date + timedelta(days=32)
+            end_date = end_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        
+        invoices = await db.invoices.find({
+            "status": "paid",
+            "paid_at": {
+                "$gte": start_date.isoformat(),
+                "$lt": end_date.isoformat()
+            }
+        }, {"_id": 0, "amount": 1}).to_list(1000)
+        
+        revenue = sum(inv['amount'] for inv in invoices) if invoices else 0
+        
+        months.append({
+            "month": month_name,
+            "revenue": revenue
+        })
+    
+    return months
+
+@api_router.get("/charts/payments")
+async def get_payments_chart_data(current_user: User = Depends(get_current_user)):
+    """Get monthly payment data for line chart"""
+    # Similar to revenue chart
+    now = datetime.now(timezone.utc)
+    months = []
+    for i in range(5, -1, -1):
+        month_date = now - timedelta(days=30 * i)
+        month_name = month_date.strftime("%b")
+        
+        start_date = month_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        if i == 0:
+            end_date = now
+        else:
+            end_date = start_date + timedelta(days=32)
+            end_date = end_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        
+        payments = await db.payments.find({
+            "status": "succeeded",
+            "created_at": {
+                "$gte": start_date.isoformat(),
+                "$lt": end_date.isoformat()
+            }
+        }, {"_id": 0, "amount": 1}).to_list(1000)
+        
+        amount = sum(p['amount'] for p in payments) if payments else 0
+        
+        months.append({
+            "month": month_name,
+            "amount": amount
+        })
+    
+    return months
+
 
 # Include the router in the main app
 app.include_router(api_router)
