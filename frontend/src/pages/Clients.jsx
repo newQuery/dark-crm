@@ -165,7 +165,7 @@ export default function Clients() {
               </div>
               <div className="flex gap-2 justify-end pt-4">
                 <Button type="button" variant="ghost" onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
-                <Button type="submit" data-testid="add-client-submit" className="bg-[color:var(--primary)] text-black hover:bg-emerald-400">Add Client</Button>
+                <Button type="submit" data-testid="add-client-submit" className="bg-emerald-500 text-black hover:bg-emerald-400 font-medium">Add Client</Button>
               </div>
             </form>
           </DialogContent>
