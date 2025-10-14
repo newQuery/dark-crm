@@ -38,41 +38,6 @@ export default function Invoices() {
     }
   };
 
-  const fetchClients = async () => {
-    try {
-      const response = await api.get('/clients');
-      setClients(response.data);
-    } catch (error) {
-      console.error('Failed to fetch clients:', error);
-    }
-  };
-
-  const fetchProjects = async () => {
-    try {
-      const response = await api.get('/projects');
-      setProjects(response.data);
-    } catch (error) {
-      console.error('Failed to fetch projects:', error);
-    }
-  };
-
-  const handleCreate = async (e) => {
-    e.preventDefault();
-    try {
-      await api.post('/invoices', {
-        ...formData,
-        amount: parseFloat(formData.amount),
-        due_date: new Date(formData.due_date).toISOString()
-      });
-      toast.success('Invoice created successfully');
-      setCreateDialogOpen(false);
-      setFormData({ client_id: '', project_id: '', amount: '', due_date: '' });
-      fetchInvoices();
-    } catch (error) {
-      toast.error('Failed to create invoice');
-    }
-  };
-
   const handleEdit = async (e) => {
     e.preventDefault();
     try {
