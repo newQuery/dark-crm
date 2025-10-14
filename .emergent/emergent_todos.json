@@ -1,19 +1,19 @@
 [
   {
     "content": "Update backend: Create uploads directory and add file upload endpoint",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Update backend: Modify deliverables API to handle file uploads",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Update backend: Add file download endpoint",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Update frontend: Replace URL input with file input in ProjectDetail",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Update frontend: Modify deliverable creation to use FormData",
