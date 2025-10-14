@@ -18,7 +18,7 @@ export default function PayInvoice() {
 
   useEffect(() => {
     fetchInvoice();
-  }, [invoice_id]);
+  }, [invoice_id, fetchInvoice]);
 
   const fetchInvoice = async () => {
     try {
