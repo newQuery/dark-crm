@@ -1,34 +1,30 @@
 [
   {
     "content": "Update Invoice model to include payment_link field",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Create Stripe Checkout Session endpoint for invoice payment",
-    "status": "pending"
+    "status": "completed"
   },
   {
-    "content": "Add payment success/cancel callback endpoints",
-    "status": "pending"
+    "content": "Add checkout.session.completed webhook handler",
+    "status": "completed"
   },
   {
     "content": "Create public payment page component",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Update App.js routing with public payment route",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Display payment link in InvoiceDetail page",
-    "status": "pending"
+    "status": "completed"
   },
   {
-    "content": "Add payment link to invoice PDF",
-    "status": "pending"
-  },
-  {
-    "content": "Test end-to-end payment flow",
+    "content": "Test invoice creation and payment flow",
     "status": "pending"
   }
 ]
