@@ -1,26 +1,22 @@
 [
   {
-    "content": "Create PaymentSuccess page component",
-    "status": "completed"
+    "content": "Check backend logs for webhook activity",
+    "status": "in_progress"
   },
   {
-    "content": "Create PaymentCancel page component",
-    "status": "completed"
+    "content": "Debug why invoice status not updating after payment",
+    "status": "pending"
   },
   {
-    "content": "Update App.js routing for success/cancel pages",
-    "status": "completed"
+    "content": "Update PayInvoice to refetch invoice on mount",
+    "status": "pending"
   },
   {
-    "content": "Update PayInvoice to check if invoice is already paid",
-    "status": "completed"
+    "content": "Verify webhook event handling",
+    "status": "pending"
   },
   {
-    "content": "Update Stripe Checkout to expire if invoice paid",
-    "status": "completed"
-  },
-  {
-    "content": "Test complete payment flow with status changes",
-    "status": "completed"
+    "content": "Test payment flow again",
+    "status": "pending"
   }
 ]
