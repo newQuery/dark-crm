@@ -1076,6 +1076,70 @@ async def get_public_invoice(invoice_id: str):
     
     return Invoice(**invoice)
 
+@api_router.post("/invoices/{invoice_id}/verify-payment")
+async def verify_payment(invoice_id: str, session_id: str = None):
+    """Verify payment status from Stripe and update invoice (no auth required for client convenience)"""
+    invoice = await db.invoices.find_one({"id": invoice_id}, {"_id": 0})
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    # If already paid, return current status
+    if invoice['status'] == 'paid':
+        return {"status": "paid", "message": "Invoice already paid"}
+    
+    # Check with Stripe if we have a session ID
+    if session_id:
+        try:
+            session = stripe.checkout.Session.retrieve(session_id)
+            
+            # If payment was successful, update invoice
+            if session.payment_status == 'paid':
+                now = datetime.now(timezone.utc)
+                await db.invoices.update_one(
+                    {"id": invoice_id},
+                    {
+                        "$set": {
+                            "status": "paid",
+                            "paid_at": now.isoformat(),
+                            "stripe_payment_intent_id": session.payment_intent,
+                            "updated_at": now.isoformat()
+                        }
+                    }
+                )
+                
+                # Create payment record
+                payment = Payment(
+                    invoice_id=invoice_id,
+                    client_id=invoice['client_id'],
+                    amount=session.amount_total / 100,
+                    currency=session.currency,
+                    status="succeeded",
+                    stripe_payment_intent_id=session.payment_intent
+                )
+                payment_dict = payment.model_dump()
+                payment_dict['created_at'] = payment_dict['created_at'].isoformat()
+                await db.payments.insert_one(payment_dict)
+                
+                # Log activity
+                client = await db.clients.find_one({"id": invoice['client_id']}, {"_id": 0, "name": 1})
+                activity = Activity(
+                    type="invoice_paid",
+                    entity_type="invoice",
+                    entity_id=invoice_id,
+                    message=f"Invoice {invoice['number']} paid via Stripe Checkout - €{session.amount_total / 100:.2f}",
+                    actor=client['name'] if client else "Client"
+                )
+                activity_dict = activity.model_dump()
+                activity_dict['timestamp'] = activity_dict['timestamp'].isoformat()
+                await db.activity.insert_one(activity_dict)
+                
+                return {"status": "paid", "message": "Payment verified and invoice updated"}
+        except stripe.error.StripeError as e:
+            logger.error(f"Stripe API error: {e}")
+            raise HTTPException(status_code=400, detail="Failed to verify payment with Stripe")
+    
+    return {"status": invoice['status'], "message": "No payment verification available"}
+
 
 # ==================== PDF INVOICE GENERATION ====================
 
