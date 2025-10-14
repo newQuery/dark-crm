@@ -107,6 +107,7 @@ export default function Invoices() {
           <TableHead className="text-[color:var(--fg-secondary)]">Amount</TableHead>
           <TableHead className="text-[color:var(--fg-secondary)]">Due Date</TableHead>
           <TableHead className="text-[color:var(--fg-secondary)]">Status</TableHead>
+          <TableHead className="text-[color:var(--fg-secondary)] text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
