@@ -406,6 +406,125 @@ async def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
 
+# ==================== USERS ROUTES ====================
+
+@api_router.get("/users", response_model=List[User])
+async def get_users(current_user: User = Depends(get_current_user)):
+    users = await db.users.find({}, {"_id": 0}).to_list(1000)
+    for user in users:
+        if isinstance(user['created_at'], str):
+            user['created_at'] = datetime.fromisoformat(user['created_at'])
+    return users
+
+@api_router.get("/users/{user_id}", response_model=User)
+async def get_user(user_id: str, current_user: User = Depends(get_current_user)):
+    user = await db.users.find_one({"id": user_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if isinstance(user['created_at'], str):
+        user['created_at'] = datetime.fromisoformat(user['created_at'])
+    return User(**{k: v for k, v in user.items() if k != 'password_hash'})
+
+@api_router.post("/users", response_model=User)
+async def create_user(user_data: UserCreate, current_user: User = Depends(get_current_user)):
+    # Check if email already exists
+    existing = await db.users.find_one({"email": user_data.email}, {"_id": 0})
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Generate random password
+    import secrets
+    import string
+    alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+    random_password = ''.join(secrets.choice(alphabet) for _ in range(12))
+    
+    # Create user
+    user = User(**user_data.model_dump())
+    user_dict = user.model_dump()
+    user_dict['password_hash'] = hash_password(random_password)
+    user_dict['created_at'] = user_dict['created_at'].isoformat()
+    
+    await db.users.insert_one(user_dict)
+    
+    # Log activity
+    activity = Activity(
+        type="user_created",
+        entity_type="user",
+        entity_id=user.id,
+        message=f"User {user.name} ({user.email}) created",
+        actor=current_user.name
+    )
+    activity_dict = activity.model_dump()
+    activity_dict['timestamp'] = activity_dict['timestamp'].isoformat()
+    await db.activity.insert_one(activity_dict)
+    
+    return user
+
+@api_router.patch("/users/{user_id}", response_model=User)
+async def update_user(user_id: str, update_data: UserUpdate, current_user: User = Depends(get_current_user)):
+    existing = await db.users.find_one({"id": user_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    if update_dict:
+        await db.users.update_one({"id": user_id}, {"$set": update_dict})
+    
+    updated_user = await db.users.find_one({"id": user_id}, {"_id": 0})
+    if isinstance(updated_user['created_at'], str):
+        updated_user['created_at'] = datetime.fromisoformat(updated_user['created_at'])
+    
+    return User(**{k: v for k, v in updated_user.items() if k != 'password_hash'})
+
+@api_router.delete("/users/{user_id}")
+async def delete_user(user_id: str, current_user: User = Depends(get_current_user)):
+    # Prevent deleting yourself
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+    
+    result = await db.users.delete_one({"id": user_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User deleted successfully"}
+
+@api_router.post("/users/{user_id}/generate-password", response_model=GeneratePasswordResponse)
+async def generate_password(user_id: str, current_user: User = Depends(get_current_user)):
+    """Generate a new random password for a user"""
+    user = await db.users.find_one({"id": user_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Generate random password
+    import secrets
+    import string
+    alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+    new_password = ''.join(secrets.choice(alphabet) for _ in range(12))
+    
+    # Update password
+    password_hash = hash_password(new_password)
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"password_hash": password_hash}}
+    )
+    
+    # Log activity
+    activity = Activity(
+        type="password_reset",
+        entity_type="user",
+        entity_id=user_id,
+        message=f"Password generated for {user['name']} ({user['email']})",
+        actor=current_user.name
+    )
+    activity_dict = activity.model_dump()
+    activity_dict['timestamp'] = activity_dict['timestamp'].isoformat()
+    await db.activity.insert_one(activity_dict)
+    
+    return GeneratePasswordResponse(
+        password=new_password,
+        message="Password generated successfully"
+    )
+
+
 # ==================== CLIENTS ROUTES ====================
 
 @api_router.get("/clients", response_model=List[Client])
