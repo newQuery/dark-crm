@@ -125,24 +125,6 @@ export default function Invoices() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => { 
-                      setSelectedInvoice(invoice);
-                      setFormData({
-                        client_id: invoice.client_id,
-                        project_id: invoice.project_id || '',
-                        amount: invoice.total?.toString() || invoice.amount?.toString() || '0',
-                        due_date: new Date(invoice.due_date).toISOString().split('T')[0]
-                      });
-                      setEditDialogOpen(true);
-                    }}
-                    data-testid={`edit-invoice-${invoice.id}`}
-                    className="hover:bg-white/10"
-                  >
-                    <Edit size={16} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
                     onClick={() => { setSelectedInvoice(invoice); setDeleteDialogOpen(true); }}
                     data-testid={`delete-invoice-${invoice.id}`}
                     className="hover:bg-red-500/10 text-[color:var(--error)]"
