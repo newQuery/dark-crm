@@ -248,7 +248,7 @@ export default function Projects() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => openViewDialog(project)}
+                        onClick={() => navigate(`/projects/${project.id}`)}
                         data-testid={`view-project-${project.id}`}
                         className="hover:bg-white/10"
                       >
