@@ -9,11 +9,11 @@
   },
   {
     "content": "Verify frontend compiles without errors",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Test ProjectDetail deliverables functionality (add, list, download, delete)",
-    "status": "pending"
+    "status": "in_progress"
   },
   {
     "content": "Test InvoiceDetail PDF download functionality",
