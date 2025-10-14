@@ -13,6 +13,7 @@ import ClientDetail from './pages/ClientDetail';
 import Invoices from './pages/Invoices';
 import CreateInvoice from './pages/CreateInvoice';
 import InvoiceDetail from './pages/InvoiceDetail';
+import PayInvoice from './pages/PayInvoice';
 import Payments from './pages/Payments';
 import PaymentDetail from './pages/PaymentDetail';
 import './App.css';
