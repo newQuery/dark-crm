@@ -32,6 +32,8 @@ export default function Payments() {
   const [payments, setPayments] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState(null);
 
   useEffect(() => {
     fetchPayments();
