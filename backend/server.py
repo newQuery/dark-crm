@@ -847,6 +847,14 @@ async def stripe_webhook(request: dict):
                 activity_dict['timestamp'] = activity_dict['timestamp'].isoformat()
                 await db.activity.insert_one(activity_dict)
                 
+                # Broadcast WebSocket update
+                await broadcast_update("invoice_paid", {
+                    "invoice_id": invoice_id,
+                    "invoice_number": invoice['number'],
+                    "amount": payment_intent['amount'] / 100,
+                    "client_name": client_name
+                })
+                
                 logger.info(f"Payment processed for invoice {invoice['number']}")
     
     return {"status": "success"}
