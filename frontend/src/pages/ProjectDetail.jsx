@@ -22,9 +22,9 @@ export default function ProjectDetail() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedDeliverable, setSelectedDeliverable] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
-    file_url: ''
+    name: ''
   });
+  const [selectedFile, setSelectedFile] = useState(null);
 
   useEffect(() => {
     fetchProject();
