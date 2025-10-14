@@ -763,6 +763,95 @@ async def get_stripe_transactions(current_user: User = Depends(get_current_user)
         raise HTTPException(status_code=500, detail=f"Failed to fetch transactions: {str(e)}")
 
 
+# ==================== STRIPE WEBHOOK ====================
+
+@api_router.post("/stripe/webhook")
+async def stripe_webhook(request: dict):
+    """Handle Stripe webhook events"""
+    from fastapi import Request
+    
+    # Get webhook secret from environment
+    webhook_secret = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
+    
+    # For testing without webhook secret (development mode)
+    if not webhook_secret:
+        logger.warning("STRIPE_WEBHOOK_SECRET not set - skipping signature verification")
+        event = request
+    else:
+        # Verify webhook signature
+        try:
+            raw_body = await request.body()
+            sig_header = request.headers.get('stripe-signature')
+            
+            event = stripe.Webhook.construct_event(
+                raw_body, sig_header, webhook_secret
+            )
+        except ValueError as e:
+            logger.error(f"Invalid payload: {e}")
+            raise HTTPException(status_code=400, detail="Invalid payload")
+        except stripe.error.SignatureVerificationError as e:
+            logger.error(f"Invalid signature: {e}")
+            raise HTTPException(status_code=400, detail="Invalid signature")
+    
+    # Handle payment_intent.succeeded event
+    if event['type'] == 'payment_intent.succeeded':
+        payment_intent = event['data']['object']
+        
+        # Get invoice from metadata
+        invoice_id = payment_intent.get('metadata', {}).get('invoice_id')
+        
+        if invoice_id:
+            # Update invoice status
+            now = datetime.now(timezone.utc)
+            await db.invoices.update_one(
+                {"id": invoice_id},
+                {
+                    "$set": {
+                        "status": "paid",
+                        "paid_at": now.isoformat(),
+                        "updated_at": now.isoformat()
+                    }
+                }
+            )
+            
+            # Get invoice details
+            invoice = await db.invoices.find_one({"id": invoice_id}, {"_id": 0})
+            
+            if invoice:
+                # Create payment record
+                payment = Payment(
+                    invoice_id=invoice_id,
+                    client_id=invoice['client_id'],
+                    amount=payment_intent['amount'] / 100,
+                    currency=payment_intent['currency'],
+                    status="succeeded",
+                    stripe_payment_intent_id=payment_intent['id']
+                )
+                payment_dict = payment.model_dump()
+                payment_dict['created_at'] = payment_dict['created_at'].isoformat()
+                await db.payments.insert_one(payment_dict)
+                
+                # Get client name
+                client = await db.clients.find_one({"id": invoice['client_id']}, {"_id": 0, "name": 1})
+                client_name = client['name'] if client else 'Unknown Client'
+                
+                # Log activity
+                activity = Activity(
+                    type="invoice_paid",
+                    entity_type="invoice",
+                    entity_id=invoice_id,
+                    message=f"Invoice {invoice['number']} paid by {client_name} - ${payment_intent['amount'] / 100:,.2f}",
+                    actor="Stripe Webhook"
+                )
+                activity_dict = activity.model_dump()
+                activity_dict['timestamp'] = activity_dict['timestamp'].isoformat()
+                await db.activity.insert_one(activity_dict)
+                
+                logger.info(f"Payment processed for invoice {invoice['number']}")
+    
+    return {"status": "success"}
+
+
 # ==================== METRICS ROUTES ====================
 
 @api_router.get("/metrics", response_model=Metrics)
