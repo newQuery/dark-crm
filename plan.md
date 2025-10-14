@@ -1,6 +1,6 @@
 # nQCrm – Development Plan (Blueprint)
 
-Status: Phase 1 – Full MVP Implementation (In Progress)
+Status: Phase 4 – Detail Pages & Enhanced Features (In Progress)
 Owner: Engineering
 Last updated: <auto>
 
@@ -13,16 +13,18 @@ nQCrm is a modern, dark-themed CRM dashboard built with React + FastAPI + MongoD
 - Stripe integration for invoice payments + transactions list (test mode)
 - Clean API-first backend for future mobile app integration
 - Data visualizations with Recharts and a cohesive, accessible dark UI following design_guidelines.md
+- **NEW**: Dedicated detail pages for all entities with enhanced features (deliverables management, PDF invoice generation)
 
 ---
 
 ## 2) Objectives
-- Implement secure JWT auth with default admin user (admin@nqcrm.com / admin123)
-- Provide CRUD APIs and UI for Projects, Clients, Invoices
-- Integrate Stripe: create payment intents for invoices, list transactions, handle webhooks, and show payout summaries
-- Dashboard KPIs + charts: revenue bar chart, payments line chart, recent activity feed
-- Ensure responsive layout (desktop/tablet), polished micro-interactions, and testability via data-testid attributes
-- Use UUID identifiers and timezone-aware datetimes throughout
+- Implement secure JWT auth with default admin user (admin@nqcrm.com / admin123) ✅
+- Provide CRUD APIs and UI for Projects, Clients, Invoices ✅
+- Integrate Stripe: create payment intents for invoices, list transactions, handle webhooks, and show payout summaries ✅
+- Dashboard KPIs + charts: revenue bar chart, payments line chart, recent activity feed ✅
+- Ensure responsive layout (desktop/tablet), polished micro-interactions, and testability via data-testid attributes ✅
+- Use UUID identifiers and timezone-aware datetimes throughout ✅
+- **NEW**: Provide dedicated detail pages with enhanced functionality for all entities 🔄
 
 ---
 
@@ -45,7 +47,7 @@ Reference: /app/design_guidelines.md
 
 ## 4) Implementation Steps (Phased)
 
-### Phase 1 – Full MVP Implementation (COMPLETED)
+### Phase 1 – Full MVP Implementation (COMPLETED ✅)
 Backend (FastAPI):
 - Auth:
   - POST /api/auth/login (JWT issuance), GET /api/auth/me
@@ -53,10 +55,11 @@ Backend (FastAPI):
   - Seed default admin user (UUID id) if absent
 - Data Models (MongoDB, UUIDs, tz-aware datetimes):
   - Client: id, name, email, company, phone, project_ids[], created_at, updated_at
-  - Project: id, title, client_id, status, deadline, total_value, created_at, updated_at
+  - Project: id, title, client_id, status, deadline, total_value, deliverables[], created_at, updated_at
   - Invoice: id, number, client_id, project_id, amount, currency, status (paid/pending/overdue), due_date, issued_date, paid_at, stripe_payment_intent_id, created_at, updated_at
   - Payment: id, invoice_id, client_id, amount, currency, status, stripe_charge_id/intent_id, created_at
   - Activity: id, type, entity_type, entity_id, message, actor, timestamp
+  - Deliverable: id, name, file_url, uploaded_at
 - CRUD Endpoints (all prefixed with /api):
   - /clients [GET/POST], /clients/{id} [GET/PATCH/DELETE]
   - /projects [GET/POST], /projects/{id} [GET/PATCH/DELETE]
@@ -91,44 +94,79 @@ Tooling & Ops:
 - Supervisor-managed services; logs at /var/log/supervisor/*
 - Follow CRITICAL rules: /api prefix, bind 0.0.0.0:8001, UUIDs, tz-aware datetimes
 
-Deliverables for Phase 1:
-- Working auth, CRUD APIs, basic UI for modules, charts fed from mock/real data, Stripe intent creation & listing
-
-### Phase 2 – Webhooks, Real-time, and Activity (COMPLETED)
+### Phase 2 – Webhooks, Real-time, and Activity (COMPLETED ✅)
 - Stripe webhooks wiring (secure signature verification)
 - Activity feed events on CRUD + payment success (append via server)
 - Realtime updates:
   - MVP: client polls activity/metrics every 10–20s
   - Enhancement: FastAPI WebSocket endpoint for push updates (activity + invoice state)
 
-### Phase 3 – Full CRUD Actions & Entity Management (COMPLETED)
-
+### Phase 3 – Full CRUD Actions & Entity Management (COMPLETED ✅)
 Add complete action buttons for all entities:
 - View detail dialogs/pages
 - Edit/Update functionality with pre-filled forms
 - Delete actions with confirmation dialogs
 - Action buttons in all tables (Projects, Clients, Invoices, Payments)
 
-### Phase 4 – Polish & Testing
+### Phase 4 – Detail Pages & Enhanced Features (IN PROGRESS 🔄)
+
+**Completed:**
+- ✅ Backend: Deliverables management API endpoints
+  - POST /api/projects/{id}/deliverables (add deliverable)
+  - GET /api/projects/{id}/deliverables (list deliverables)
+  - DELETE /api/projects/{id}/deliverables/{deliverable_id} (remove deliverable)
+- ✅ Backend: PDF invoice generation with reportlab
+  - GET /api/invoices/{id}/pdf (download professional PDF with logo)
+- ✅ Backend: reportlab and pillow dependencies added to requirements.txt
+- ✅ Frontend: ProjectDetail page fully implemented
+  - View project information (client, value, deadline, status)
+  - Add/list/remove deliverables with file URLs
+  - Download deliverables functionality
+  - Breadcrumb navigation back to Projects list
+- ✅ Frontend: InvoiceDetail page fully implemented
+  - View invoice information (number, amount, dates, status)
+  - Display client and project links
+  - PDF download button with loading state
+  - Stripe payment intent ID display
+  - Breadcrumb navigation back to Invoices list
+- ✅ Frontend: ClientDetail page created
+  - View client contact information (email, phone, company)
+  - Display associated projects with links
+  - Breadcrumb navigation back to Clients list
+- ✅ Frontend: PaymentDetail page created
+  - View payment information (amount, currency, date)
+  - Display client link
+  - Show Stripe transaction IDs
+  - Breadcrumb navigation back to Payments list
+- ✅ Frontend: Projects.jsx refactored to navigate to detail pages (View button uses navigate)
+- ✅ Frontend: Clients.jsx refactored to navigate to detail pages (View button uses navigate)
+- ✅ Frontend: App.js routing configured for all detail pages (/projects/:id, /clients/:id, /invoices/:id, /payments/:id)
+
+**In Progress:**
+- 🔄 Refactor Invoices.jsx to navigate to detail pages instead of opening view dialog
+- 🔄 Refactor Payments.jsx to navigate to detail pages instead of opening view dialog
+
+**Remaining Tasks:**
+- Test deliverables upload/list/delete functionality end-to-end
+- Test PDF invoice generation and download
+- Test all detail pages navigation and display
+- Comprehensive testing via testing agent
+- UI polish and accessibility review
+
+### Phase 5 – Testing & Polish (UPCOMING)
 - Testing agent run for end-to-end flows and API checks
 - UI refinements per design; accessibility checks; performance passes
 - Error boundary components + robust empty/loading visuals
+- Verify all data-testid attributes are present
+- Frontend compile check with esbuild
+- Service logs review
 
-### Phase 4 – Detail Pages & Enhanced Features (In Progress)
-
-Convert view dialogs to full pages with enhanced functionality:
-- **Project Detail Page**: View all info + add/list/remove deliverables (file downloads)
-- **Client Detail Page**: Full client information view
-- **Invoice Detail Page**: Complete invoice view + PDF download button (professional design with logo)
-- **Payment Detail Page**: Complete transaction details
-- Update routing and navigation
-- Backend: Deliverables management API endpoints
-- Backend: PDF invoice generation with reportlab
-
-### Phase 5 – Advanced Features (Future)
+### Phase 6 – Advanced Features (FUTURE)
 - 2FA (time-based OTP) for admin user
 - Export/Import CSVs for invoices and clients
 - Multi-user roles & permissions
+- File upload for deliverables (currently URL-based)
+- Invoice templates customization
 
 ---
 
@@ -161,7 +199,8 @@ Stripe:
 Data Models (Mongo collections – all IDs are UUID strings):
 - users: { id, email, password_hash, name, role, created_at }
 - clients: { id, name, email, company, phone, project_ids[], created_at, updated_at }
-- projects: { id, title, client_id, status, deadline, total_value, created_at, updated_at }
+- projects: { id, title, client_id, status, deadline, total_value, deliverables[], created_at, updated_at }
+  - deliverables: [{ id, name, file_url, uploaded_at }]
 - invoices: { id, number, client_id, project_id, amount, currency, status, due_date, issued_date, paid_at, stripe_payment_intent_id, created_at, updated_at }
 - payments: { id, invoice_id, client_id, amount, currency, status, stripe_charge_id, stripe_payment_intent_id, created_at }
 - activity: { id, type, entity_type, entity_id, actor, message, timestamp }
@@ -170,7 +209,11 @@ API Surface (all prefixed /api):
 - Auth: POST /auth/login, GET /auth/me
 - Clients: GET/POST /clients; GET/PATCH/DELETE /clients/{id}
 - Projects: GET/POST /projects; GET/PATCH/DELETE /projects/{id}
+  - POST /projects/{id}/deliverables (add deliverable)
+  - GET /projects/{id}/deliverables (list deliverables)
+  - DELETE /projects/{id}/deliverables/{deliverable_id} (remove deliverable)
 - Invoices: GET/POST /invoices; GET/PATCH/DELETE /invoices/{id}
+  - GET /invoices/{id}/pdf (download PDF)
 - Payments: GET /payments, POST /payments/intent
 - Metrics: GET /metrics (revenue, activeProjects, clientsCount, mrr)
 - Activity: GET /activity (recent timeline)
@@ -180,47 +223,77 @@ Frontend Routing (React Router):
 - / (redirect -> /dashboard)
 - /dashboard (protected)
 - /projects (protected)
+- /projects/:id (protected) - Project detail page
 - /clients (protected)
+- /clients/:id (protected) - Client detail page
 - /invoices (protected)
+- /invoices/:id (protected) - Invoice detail page
 - /payments (protected)
+- /payments/:id (protected) - Payment detail page
 
-Dependencies to add (via yarn add):
-- Backend: stripe, python-jose, bcrypt (present), python-multipart (present)
-- Frontend: recharts, framer-motion, @fontsource/space-grotesk, @fontsource/inter
+Dependencies:
+- Backend: stripe, python-jose, bcrypt, python-multipart, websockets, reportlab, pillow
+- Frontend: recharts, framer-motion, @fontsource/space-grotesk, @fontsource/inter, react-router-dom
 
 Testing & QA:
-- After MVP: invoke testing agent for both frontend and backend flows
+- After implementation: invoke testing agent for both frontend and backend flows
 - Compile check (frontend): esbuild src/ --loader:.js=jsx --bundle --outfile=/dev/null
 - Logs: tail -n 50 /var/log/supervisor/frontend.*.log /var/log/supervisor/backend.*.log
 
 ---
 
-## 6) Next Actions
-1) Backend
-- Add auth (JWT) endpoints and seed default user
-- Create Mongo models/collections and CRUD routes for clients, projects, invoices
-- Add metrics and activity endpoints
-- Integrate Stripe SDK; implement create intent + transactions list; scaffold webhook endpoint
+## 6) Current Phase 4 Tasks (Priority Order)
 
-2) Frontend
-- Establish app shell with sidebar/topbar per design tokens; insert logos (1.png horizontal, 5.png icon)
-- Implement Login page and AuthContext
-- Build pages: Dashboard (stats + charts), Projects, Clients, Invoices, Payments
-- Wire API layer with axios, add loading/empty/error states, add data-testid attributes everywhere
+**Immediate (Sprint 1):**
+1. Refactor Invoices.jsx View button to navigate to /invoices/:id instead of opening dialog
+2. Remove View Dialog from Invoices.jsx (keep Edit and Delete dialogs)
+3. Refactor Payments.jsx View button to navigate to /payments/:id instead of opening dialog
+4. Remove View Dialog from Payments.jsx
 
-3) Tooling & Tests
-- Add dependencies (yarn add ...); restart services with supervisorctl if needed
-- Run compile checks; review logs; call testing agent for regression suite
+**Testing (Sprint 2):**
+5. Test ProjectDetail page deliverables functionality (add, list, delete)
+6. Test InvoiceDetail page PDF download
+7. Test all navigation flows (list -> detail -> back to list)
+8. Verify all detail pages display correct data
+9. Run comprehensive testing via testing agent
+
+**Polish (Sprint 3):**
+10. Frontend compile check with esbuild
+11. Review service logs for errors
+12. Accessibility audit on detail pages
+13. Verify all data-testid attributes present
+14. UI/UX polish based on testing feedback
 
 ---
 
 ## 7) Success Criteria
-- Authentication: Default user can log in; protected routes enforced; token refresh not required for MVP
-- CRUD: Users can create/edit/delete clients, projects, invoices; validations for required fields
-- Payments: 
-  - Create PaymentIntent from an invoice and complete test-mode payment
-  - Transactions list shows Stripe data; invoice status auto-updates to paid on success (via webhook or polling)
-- Dashboard: KPIs reflect DB state; revenue and payments charts render data accurately; recent activity updates
-- UI/UX: Dark theme per guidelines; tokens applied; hover/focus states; accessible; responsive; subtle animations; gradients within limits
-- Testability: data-testid on all interactive/critical UI; lint/compile pass; testing agent scenarios green
-- Architecture: All APIs under /api; UUIDs used; tz-aware datetimes; env-driven URLs and keys; no secrets logged; services stable under supervisor
+
+**Phase 1-3 (Completed):**
+- ✅ Authentication: Default user can log in; protected routes enforced
+- ✅ CRUD: Users can create/edit/delete clients, projects, invoices
+- ✅ Payments: Create PaymentIntent, transactions list, webhook integration
+- ✅ Dashboard: KPIs, charts, activity feed working
+- ✅ UI/UX: Dark theme, design tokens, responsive, accessible
+- ✅ Architecture: /api prefix, UUIDs, tz-aware datetimes, env-driven config
+
+**Phase 4 (In Progress):**
+- ✅ Backend deliverables API endpoints functional
+- ✅ Backend PDF generation working
+- ✅ ProjectDetail page with deliverables management
+- ✅ InvoiceDetail page with PDF download
+- ✅ ClientDetail and PaymentDetail pages created
+- 🔄 All CRUD pages navigate to detail pages (not dialogs)
+- ⏳ All detail pages tested and verified
+- ⏳ Testing agent validation passed
+- ⏳ No console errors, all services stable
+
+**Definition of Done for Phase 4:**
+- All View buttons navigate to dedicated detail pages
+- No view dialogs remain in CRUD pages (only Edit/Delete dialogs)
+- All detail pages display complete entity information
+- ProjectDetail deliverables CRUD works end-to-end
+- InvoiceDetail PDF download works with proper formatting and logo
+- All navigation (breadcrumbs, links) works correctly
+- Testing agent reports no critical issues
+- Frontend compiles without errors
+- All interactive elements have data-testid attributes
