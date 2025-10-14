@@ -115,7 +115,7 @@ export default function Payments() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-[color:var(--fg-secondary)]">Loading...</TableCell>
+                <TableCell colSpan={6} className="text-center text-[color:var(--fg-secondary)]">Loading...</TableCell>
               </TableRow>
             ) : payments.length > 0 ? (
               payments.map((payment) => (
