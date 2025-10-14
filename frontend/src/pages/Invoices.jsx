@@ -25,8 +25,6 @@ export default function Invoices() {
 
   useEffect(() => {
     fetchInvoices();
-    fetchClients();
-    fetchProjects();
   }, []);
 
   const fetchInvoices = async () => {
