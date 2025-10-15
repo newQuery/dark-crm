@@ -646,9 +646,16 @@ async def delete_client(client_id: str, current_user: User = Depends(get_current
 
 # ==================== PROJECTS ROUTES ====================
 
-@api_router.get("/projects", response_model=List[Project])
-async def get_projects(current_user: User = Depends(get_current_user)):
-    projects = await db.projects.find({}, {"_id": 0}).to_list(1000)
+@api_router.get("/projects")
+async def get_projects(
+    current_user: User = Depends(get_current_user),
+    page: int = 1,
+    page_size: int = 10
+):
+    skip = (page - 1) * page_size
+    total = await db.projects.count_documents({})
+    
+    projects = await db.projects.find({}, {"_id": 0}).skip(skip).limit(page_size).to_list(page_size)
     for project in projects:
         if isinstance(project['created_at'], str):
             project['created_at'] = datetime.fromisoformat(project['created_at'])
