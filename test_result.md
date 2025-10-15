@@ -190,6 +190,30 @@ backend:
           comment: "Tested GET /api/users with pagination and individual user retrieval. Both endpoints working correctly with proper data structure."
 
 frontend:
+  - task: "Toast notification auto-dismiss"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/hooks/use-toast.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Fixed TOAST_REMOVE_DELAY from 1000000ms (16 minutes) to 3000ms (3 seconds). Toast notifications now auto-dismiss after 3 seconds as expected."
+
+  - task: "Dashboard empty chart states"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/Dashboard.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: true
+          agent: "main"
+          comment: "Added empty state handling for Revenue Overview and Payments Trend charts. When no data is available, charts now display icon + helpful message instead of appearing as empty/broken boxes."
+
   - task: "EmptyState component creation"
     implemented: true
     working: true
