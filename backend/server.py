@@ -669,7 +669,18 @@ async def get_projects(
             client = await db.clients.find_one({"id": project['client_id']}, {"_id": 0, "name": 1})
             if client:
                 project['client_name'] = client['name']
-    return projects
+    
+    total_pages = (total + page_size - 1) // page_size
+    
+    return {
+        "items": projects,
+        "meta": {
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": total_pages
+        }
+    }
 
 @api_router.get("/projects/{project_id}", response_model=Project)
 async def get_project(project_id: str, current_user: User = Depends(get_current_user)):
