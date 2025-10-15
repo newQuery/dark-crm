@@ -8,6 +8,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
+import { Pagination } from '../components/Pagination';
 import { toast } from 'sonner';
 import api from '../lib/api';
 
@@ -20,6 +21,9 @@ export default function Clients() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -29,12 +33,14 @@ export default function Clients() {
 
   useEffect(() => {
     fetchClients();
-  }, []);
+  }, [currentPage]);
 
   const fetchClients = async () => {
     try {
-      const response = await api.get('/clients');
-      setClients(response.data);
+      const response = await api.get(`/clients?page=${currentPage}&page_size=10`);
+      setClients(response.data.items);
+      setTotalPages(response.data.meta.total_pages);
+      setTotalItems(response.data.meta.total);
     } catch (error) {
       toast.error('Failed to fetch clients');
     } finally {
