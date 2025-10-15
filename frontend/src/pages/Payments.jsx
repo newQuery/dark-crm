@@ -124,7 +124,12 @@ export default function Payments() {
               </TableRow>
             ) : payments.length > 0 ? (
               payments.map((payment) => (
-                <TableRow key={payment.id} className="border-[color:var(--border-default)] hover:bg-white/5" data-testid={`payment-row-${payment.id}`}>
+                <TableRow 
+                  key={payment.id} 
+                  className="border-[color:var(--border-default)] hover:bg-white/5 transition-colors cursor-pointer" 
+                  data-testid={`payment-row-${payment.id}`}
+                  onClick={() => navigate(`/payments/${payment.id}`)}
+                >
                   <TableCell className="text-[color:var(--fg-primary)]">{payment.client_name || 'N/A'}</TableCell>
                   <TableCell className="font-medium text-[color:var(--fg-primary)]">${payment.amount.toLocaleString()}</TableCell>
                   <TableCell>
@@ -134,13 +139,13 @@ export default function Payments() {
                   </TableCell>
                   <TableCell className="text-[color:var(--fg-secondary)]">{new Date(payment.created_at).toLocaleDateString()}</TableCell>
                   <TableCell className="text-xs font-mono text-[color:var(--fg-tertiary)]">{payment.stripe_payment_intent_id || 'N/A'}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => navigate(`/payments/${payment.id}`)}
                       data-testid={`view-payment-${payment.id}`}
-                      className="hover:bg-white/10"
+                      className="hover:bg-white/10 transition-colors"
                     >
                       <Eye size={16} />
                     </Button>
@@ -149,7 +154,13 @@ export default function Payments() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-[color:var(--fg-secondary)]">No payments found</TableCell>
+                <TableCell colSpan={6} className="p-0">
+                  <EmptyState
+                    icon={CreditCard}
+                    title="No payments yet"
+                    description="Payment transactions will appear here once invoices are paid through Stripe. Track all your successful payments in one place."
+                  />
+                </TableCell>
               </TableRow>
             )}
           </TableBody>
