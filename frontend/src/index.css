@@ -127,3 +127,68 @@
         border-bottom-color: inherit;
     }
 }
+
+/* Enhanced UI/UX Styles */
+@layer utilities {
+    /* Smooth focus rings for accessibility */
+    *:focus-visible {
+        outline: none;
+        box-shadow: var(--focus-ring);
+    }
+
+    /* Enhanced button hover effects */
+    button:not(:disabled):hover {
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+
+    button:not(:disabled):active {
+        transform: translateY(0px);
+    }
+
+    /* Card hover effects */
+    .card-hover:hover {
+        box-shadow: var(--shadow-glow);
+        transition: box-shadow 0.3s ease;
+    }
+
+    /* Smooth scrollbar for webkit browsers */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--bg-elevated);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--border-default);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--fg-tertiary);
+    }
+
+    /* Loading skeleton animation */
+    @keyframes skeleton-loading {
+        0% {
+            background-position: -200px 0;
+        }
+        100% {
+            background-position: calc(200px + 100%) 0;
+        }
+    }
+
+    .skeleton {
+        animation: skeleton-loading 1.5s ease-in-out infinite;
+        background: linear-gradient(
+            90deg,
+            var(--bg-elevated) 0px,
+            rgba(255, 255, 255, 0.05) 40px,
+            var(--bg-elevated) 80px
+        );
+        background-size: 200px 100%;
+    }
+}
