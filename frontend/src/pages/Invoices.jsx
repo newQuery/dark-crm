@@ -7,6 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
+import { Pagination } from '../components/Pagination';
 import { toast } from 'sonner';
 import api from '../lib/api';
 
@@ -17,15 +18,20 @@ export default function Invoices() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
 
   useEffect(() => {
     fetchInvoices();
-  }, []);
+  }, [currentPage]);
 
   const fetchInvoices = async () => {
     try {
-      const response = await api.get('/invoices');
-      setInvoices(response.data);
+      const response = await api.get(`/invoices?page=${currentPage}&page_size=10`);
+      setInvoices(response.data.items);
+      setTotalPages(response.data.meta.total_pages);
+      setTotalItems(response.data.meta.total);
     } catch (error) {
       toast.error('Failed to fetch invoices');
     } finally {
