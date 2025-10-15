@@ -70,8 +70,20 @@ export default function UserDetail() {
           <ArrowLeft size={16} />
           Back to Users
         </Link>
-        <h1 className="text-4xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk' }}>{user.name}</h1>
-        <p className="text-[color:var(--fg-secondary)] mt-2">User Details & Password Management</p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk' }}>{user.name}</h1>
+            <p className="text-[color:var(--fg-secondary)] mt-2">User Details & Password Management</p>
+          </div>
+          <Button
+            onClick={() => navigate(`/users/${id}/edit`)}
+            variant="outline"
+            className="gap-2"
+            data-testid="edit-user-button"
+          >
+            Edit User
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
