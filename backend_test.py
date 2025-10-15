@@ -146,7 +146,8 @@ class nQCrmAPITester:
         )
         
         if success:
-            print(f"   Found {len(clients_response)} clients")
+            items = clients_response.get('items', [])
+            print(f"   Found {len(items)} clients")
         
         # Create new client
         test_client_data = {
