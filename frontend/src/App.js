@@ -12,6 +12,7 @@ import Clients from './pages/Clients';
 import ClientDetail from './pages/ClientDetail';
 import Users from './pages/Users';
 import CreateUser from './pages/CreateUser';
+import EditUser from './pages/EditUser';
 import UserDetail from './pages/UserDetail';
 import Invoices from './pages/Invoices';
 import CreateInvoice from './pages/CreateInvoice';
