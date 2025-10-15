@@ -168,6 +168,14 @@ export default function Invoices() {
             <InvoiceTable invoices={filterInvoices('overdue')} />
           </TabsContent>
         </Tabs>
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </Card>
 
       {/* Delete Confirmation Dialog */}
