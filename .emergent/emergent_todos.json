@@ -1,34 +1,22 @@
 [
   {
-    "content": "Add User CRUD backend endpoints",
-    "status": "completed"
+    "content": "Update role options to admin/customer in CreateUser",
+    "status": "in_progress"
   },
   {
-    "content": "Add generate random password endpoint",
-    "status": "completed"
+    "content": "Create EditUser.jsx page",
+    "status": "pending"
   },
   {
-    "content": "Create Users.jsx list page",
-    "status": "completed"
+    "content": "Add Edit button to Users.jsx table",
+    "status": "pending"
   },
   {
-    "content": "Create CreateUser.jsx page (without password)",
-    "status": "completed"
+    "content": "Update App.js routing for edit user",
+    "status": "pending"
   },
   {
-    "content": "Create UserDetail.jsx with password generation",
-    "status": "completed"
-  },
-  {
-    "content": "Update App.js routing for users",
-    "status": "completed"
-  },
-  {
-    "content": "Update Sidebar navigation to include Users",
-    "status": "completed"
-  },
-  {
-    "content": "Test Users CRUD flow",
-    "status": "completed"
+    "content": "Test user update functionality",
+    "status": "pending"
   }
 ]
