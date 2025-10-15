@@ -153,6 +153,14 @@ export default function Payments() {
             )}
           </TableBody>
         </Table>
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </Card>
 
       {transactions.length > 0 && (
