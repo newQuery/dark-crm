@@ -33,8 +33,8 @@ export default function ClientDetail() {
 
   const fetchClientProjects = async () => {
     try {
-      const response = await api.get('/projects');
-      const clientProjects = response.data.filter(p => p.client_id === id);
+      const response = await api.get('/projects?page=1&page_size=1000');
+      const clientProjects = (response.data.items || response.data).filter(p => p.client_id === id);
       setProjects(clientProjects);
     } catch (error) {
       console.error('Failed to fetch projects:', error);
