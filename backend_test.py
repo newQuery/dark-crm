@@ -213,7 +213,8 @@ class nQCrmAPITester:
         )
         
         if success:
-            print(f"   Found {len(projects_response)} projects")
+            items = projects_response.get('items', [])
+            print(f"   Found {len(items)} projects")
             
         # Get clients first for project creation
         success, clients_response = self.run_test(
