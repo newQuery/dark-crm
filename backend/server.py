@@ -557,15 +557,33 @@ async def generate_password(user_id: str, current_user: User = Depends(get_curre
 
 # ==================== CLIENTS ROUTES ====================
 
-@api_router.get("/clients", response_model=List[Client])
-async def get_clients(current_user: User = Depends(get_current_user)):
-    clients = await db.clients.find({}, {"_id": 0}).to_list(1000)
+@api_router.get("/clients")
+async def get_clients(
+    current_user: User = Depends(get_current_user),
+    page: int = 1,
+    page_size: int = 10
+):
+    skip = (page - 1) * page_size
+    total = await db.clients.count_documents({})
+    
+    clients = await db.clients.find({}, {"_id": 0}).skip(skip).limit(page_size).to_list(page_size)
     for client in clients:
         if isinstance(client['created_at'], str):
             client['created_at'] = datetime.fromisoformat(client['created_at'])
         if isinstance(client['updated_at'], str):
             client['updated_at'] = datetime.fromisoformat(client['updated_at'])
-    return clients
+    
+    total_pages = (total + page_size - 1) // page_size
+    
+    return {
+        "items": clients,
+        "meta": {
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": total_pages
+        }
+    }
 
 @api_router.get("/clients/{client_id}", response_model=Client)
 async def get_client(client_id: str, current_user: User = Depends(get_current_user)):
