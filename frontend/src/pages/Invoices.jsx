@@ -86,7 +86,12 @@ export default function Invoices() {
           </TableRow>
         ) : invoices.length > 0 ? (
           invoices.map((invoice) => (
-            <TableRow key={invoice.id} className="border-[color:var(--border-default)] hover:bg-white/5" data-testid={`invoice-row-${invoice.id}`}>
+            <TableRow 
+              key={invoice.id} 
+              className="border-[color:var(--border-default)] hover:bg-white/5 transition-colors cursor-pointer" 
+              data-testid={`invoice-row-${invoice.id}`}
+              onClick={() => navigate(`/invoices/${invoice.id}`)}
+            >
               <TableCell className="font-medium text-[color:var(--fg-primary)]">{invoice.number}</TableCell>
               <TableCell className="text-[color:var(--fg-secondary)]">{invoice.client_name || 'N/A'}</TableCell>
               <TableCell className="text-[color:var(--fg-secondary)]">{invoice.project_title || 'N/A'}</TableCell>
@@ -97,14 +102,14 @@ export default function Invoices() {
                   {invoice.status}
                 </Badge>
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                 <div className="flex gap-2 justify-end">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => navigate(`/invoices/${invoice.id}`)}
                     data-testid={`view-invoice-${invoice.id}`}
-                    className="hover:bg-white/10"
+                    className="hover:bg-white/10 transition-colors"
                   >
                     <Eye size={16} />
                   </Button>
@@ -113,7 +118,7 @@ export default function Invoices() {
                     size="sm"
                     onClick={() => { setSelectedInvoice(invoice); setDeleteDialogOpen(true); }}
                     data-testid={`delete-invoice-${invoice.id}`}
-                    className="hover:bg-red-500/10 text-[color:var(--error)]"
+                    className="hover:bg-red-500/10 text-[color:var(--error)] transition-colors"
                   >
                     <Trash2 size={16} />
                   </Button>
@@ -123,7 +128,21 @@ export default function Invoices() {
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={7} className="text-center text-[color:var(--fg-secondary)]">No invoices found</TableCell>
+            <TableCell colSpan={7} className="p-0">
+              <EmptyState
+                icon={FileText}
+                title="No invoices yet"
+                description="Get started by creating your first invoice. Track payments and manage billing all in one place."
+                action={
+                  <Button 
+                    onClick={() => navigate('/invoices/create')}
+                    className="bg-emerald-500 text-black hover:bg-emerald-400 font-medium gap-2"
+                  >
+                    <Plus size={16} /> Create Invoice
+                  </Button>
+                }
+              />
+            </TableCell>
           </TableRow>
         )}
       </TableBody>
