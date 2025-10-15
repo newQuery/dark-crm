@@ -1,38 +1,42 @@
 [
   {
     "content": "Add pagination models and response types to backend",
-    "status": "in_progress"
+    "status": "completed"
   },
   {
     "content": "Update backend endpoints: clients, projects, invoices, payments, users",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Create reusable Pagination component for frontend",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Update Users.jsx with pagination",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Update Clients.jsx with pagination",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Update Projects.jsx with pagination",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Update Invoices.jsx with pagination",
-    "status": "pending"
+    "status": "completed"
   },
   {
     "content": "Update Payments.jsx with pagination",
-    "status": "pending"
+    "status": "completed"
+  },
+  {
+    "content": "Fix API calls in CreateInvoice and ClientDetail",
+    "status": "completed"
   },
   {
     "content": "Test pagination across all pages",
-    "status": "pending"
+    "status": "completed"
   }
 ]
