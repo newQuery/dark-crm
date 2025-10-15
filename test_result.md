@@ -306,12 +306,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Toast notification auto-dismiss"
-    - "Dashboard empty chart states"
-    - "Empty states on all list pages"
-    - "Hover effects and transitions"
+    - "Frontend UI/UX testing"
+    - "Empty states validation"
+    - "Toast notification behavior"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
