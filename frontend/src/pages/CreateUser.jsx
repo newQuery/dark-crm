@@ -15,7 +15,7 @@ export default function CreateUser() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: 'admin'
+    role: 'customer'
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -88,8 +88,7 @@ export default function CreateUser() {
                     </SelectTrigger>
                     <SelectContent className="bg-[color:var(--bg-elevated)] border-[color:var(--border-default)]">
                       <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="manager">Manager</SelectItem>
-                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value="customer">Customer</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
