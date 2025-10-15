@@ -36,8 +36,8 @@ export default function CreateInvoice() {
 
   const fetchClients = async () => {
     try {
-      const response = await api.get('/clients');
-      setClients(response.data);
+      const response = await api.get('/clients?page=1&page_size=1000');
+      setClients(response.data.items || response.data);
     } catch (error) {
       toast.error('Failed to fetch clients');
     }
@@ -45,8 +45,8 @@ export default function CreateInvoice() {
 
   const fetchProjects = async () => {
     try {
-      const response = await api.get('/projects');
-      setProjects(response.data);
+      const response = await api.get('/projects?page=1&page_size=1000');
+      setProjects(response.data.items || response.data);
     } catch (error) {
       toast.error('Failed to fetch projects');
     }
