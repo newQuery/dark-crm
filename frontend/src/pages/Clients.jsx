@@ -203,19 +203,24 @@ export default function Clients() {
               </TableRow>
             ) : filteredClients.length > 0 ? (
               filteredClients.map((client) => (
-                <TableRow key={client.id} className="border-[color:var(--border-default)] hover:bg-white/5" data-testid={`client-row-${client.id}`}>
+                <TableRow 
+                  key={client.id} 
+                  className="border-[color:var(--border-default)] hover:bg-white/5 transition-colors cursor-pointer" 
+                  data-testid={`client-row-${client.id}`}
+                  onClick={() => navigate(`/clients/${client.id}`)}
+                >
                   <TableCell className="font-medium text-[color:var(--fg-primary)]">{client.name}</TableCell>
                   <TableCell className="text-[color:var(--fg-secondary)]">{client.email}</TableCell>
                   <TableCell className="text-[color:var(--fg-secondary)]">{client.company || 'N/A'}</TableCell>
                   <TableCell className="text-[color:var(--fg-secondary)]">{client.phone || 'N/A'}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <div className="flex gap-2 justify-end">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => navigate(`/clients/${client.id}`)}
                         data-testid={`view-client-${client.id}`}
-                        className="hover:bg-white/10"
+                        className="hover:bg-white/10 transition-colors"
                       >
                         <Eye size={16} />
                       </Button>
@@ -224,7 +229,7 @@ export default function Clients() {
                         size="sm"
                         onClick={() => openEditDialog(client)}
                         data-testid={`edit-client-${client.id}`}
-                        className="hover:bg-white/10"
+                        className="hover:bg-white/10 transition-colors"
                       >
                         <Edit size={16} />
                       </Button>
@@ -233,7 +238,7 @@ export default function Clients() {
                         size="sm"
                         onClick={() => openDeleteDialog(client)}
                         data-testid={`delete-client-${client.id}`}
-                        className="hover:bg-red-500/10 text-[color:var(--error)]"
+                        className="hover:bg-red-500/10 text-[color:var(--error)] transition-colors"
                       >
                         <Trash2 size={16} />
                       </Button>
@@ -243,7 +248,21 @@ export default function Clients() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-[color:var(--fg-secondary)]">No clients found</TableCell>
+                <TableCell colSpan={5} className="p-0">
+                  <EmptyState
+                    icon={Users2}
+                    title="No clients yet"
+                    description="Build your client base by adding your first client. Store contact information and manage relationships all in one place."
+                    action={
+                      <Button 
+                        onClick={() => setCreateDialogOpen(true)}
+                        className="bg-emerald-500 text-black hover:bg-emerald-400 font-medium gap-2"
+                      >
+                        <Plus size={16} /> Add Client
+                      </Button>
+                    }
+                  />
+                </TableCell>
               </TableRow>
             )}
           </TableBody>
