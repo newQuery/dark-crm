@@ -944,9 +944,16 @@ async def delete_deliverable(
 
 # ==================== INVOICES ROUTES ====================
 
-@api_router.get("/invoices", response_model=List[Invoice])
-async def get_invoices(current_user: User = Depends(get_current_user)):
-    invoices = await db.invoices.find({}, {"_id": 0}).to_list(1000)
+@api_router.get("/invoices")
+async def get_invoices(
+    current_user: User = Depends(get_current_user),
+    page: int = 1,
+    page_size: int = 10
+):
+    skip = (page - 1) * page_size
+    total = await db.invoices.count_documents({})
+    
+    invoices = await db.invoices.find({}, {"_id": 0}).skip(skip).limit(page_size).to_list(page_size)
     for invoice in invoices:
         if isinstance(invoice['created_at'], str):
             invoice['created_at'] = datetime.fromisoformat(invoice['created_at'])
@@ -970,7 +977,17 @@ async def get_invoices(current_user: User = Depends(get_current_user)):
             if project:
                 invoice['project_title'] = project['title']
     
-    return invoices
+    total_pages = (total + page_size - 1) // page_size
+    
+    return {
+        "items": invoices,
+        "meta": {
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": total_pages
+        }
+    }
 
 @api_router.get("/invoices/{invoice_id}", response_model=Invoice)
 async def get_invoice(invoice_id: str, current_user: User = Depends(get_current_user)):
