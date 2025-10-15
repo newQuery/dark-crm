@@ -418,13 +418,33 @@ async def get_me(current_user: User = Depends(get_current_user)):
 
 # ==================== USERS ROUTES ====================
 
-@api_router.get("/users", response_model=List[User])
-async def get_users(current_user: User = Depends(get_current_user)):
-    users = await db.users.find({}, {"_id": 0}).to_list(1000)
+@api_router.get("/users")
+async def get_users(
+    current_user: User = Depends(get_current_user),
+    page: int = 1,
+    page_size: int = 10
+):
+    skip = (page - 1) * page_size
+    total = await db.users.count_documents({})
+    
+    users = await db.users.find({}, {"_id": 0}).skip(skip).limit(page_size).to_list(page_size)
     for user in users:
         if isinstance(user['created_at'], str):
             user['created_at'] = datetime.fromisoformat(user['created_at'])
-    return users
+        # Remove password_hash from response
+        user.pop('password_hash', None)
+    
+    total_pages = (total + page_size - 1) // page_size
+    
+    return {
+        "items": users,
+        "meta": {
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": total_pages
+        }
+    }
 
 @api_router.get("/users/{user_id}", response_model=User)
 async def get_user(user_id: str, current_user: User = Depends(get_current_user)):
