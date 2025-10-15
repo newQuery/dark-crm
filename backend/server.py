@@ -1551,9 +1551,16 @@ async def generate_invoice_pdf(invoice_id: str, current_user: User = Depends(get
 
 # ==================== PAYMENTS ROUTES ====================
 
-@api_router.get("/payments", response_model=List[Payment])
-async def get_payments(current_user: User = Depends(get_current_user)):
-    payments = await db.payments.find({}, {"_id": 0}).to_list(1000)
+@api_router.get("/payments")
+async def get_payments(
+    current_user: User = Depends(get_current_user),
+    page: int = 1,
+    page_size: int = 10
+):
+    skip = (page - 1) * page_size
+    total = await db.payments.count_documents({})
+    
+    payments = await db.payments.find({}, {"_id": 0}).skip(skip).limit(page_size).to_list(page_size)
     for payment in payments:
         if isinstance(payment['created_at'], str):
             payment['created_at'] = datetime.fromisoformat(payment['created_at'])
@@ -1564,7 +1571,17 @@ async def get_payments(current_user: User = Depends(get_current_user)):
             if client:
                 payment['client_name'] = client['name']
     
-    return payments
+    total_pages = (total + page_size - 1) // page_size
+    
+    return {
+        "items": payments,
+        "meta": {
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": total_pages
+        }
+    }
 
 @api_router.post("/payments/intent", response_model=PaymentIntentResponse)
 async def create_payment_intent(request: PaymentIntentRequest, current_user: User = Depends(get_current_user)):
