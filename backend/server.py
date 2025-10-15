@@ -233,6 +233,16 @@ class Metrics(BaseModel):
     total_clients: int
     mrr: float
 
+class PaginationMeta(BaseModel):
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
+
+class PaginatedResponse(BaseModel):
+    items: List
+    meta: PaginationMeta
+
 
 # ==================== AUTH HELPERS ====================
 
