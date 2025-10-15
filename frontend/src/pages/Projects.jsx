@@ -289,6 +289,14 @@ export default function Projects() {
             )}
           </TableBody>
         </Table>
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </Card>
 
       {/* Edit Dialog */}
