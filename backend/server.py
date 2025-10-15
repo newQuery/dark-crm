@@ -1200,7 +1200,7 @@ async def create_payment_link(invoice_id: str, current_user: User = Depends(get_
     client = await db.clients.find_one({"id": invoice['client_id']}, {"_id": 0})
     
     # Get frontend URL from env or use default
-    frontend_url = os.environ.get('FRONTEND_URL', 'https://nqcrm-app.preview.emergentagent.com')
+    frontend_url = os.environ.get('FRONTEND_URL', 'https://darkcrm-app.preview.emergentagent.com')
     
     # Create line items for Stripe
     stripe_line_items = []

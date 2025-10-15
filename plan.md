@@ -409,7 +409,7 @@ Testing & QA:
 
 ## 8) Preview Access
 
-**Application URL:** https://nqcrm-app.preview.emergentagent.com
+**Application URL:** https://darkcrm-app.preview.emergentagent.com
 
 **Default Credentials:**
 - Email: admin@nqcrm.com
