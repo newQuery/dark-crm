@@ -1,22 +1,38 @@
 [
   {
-    "content": "Update role options to admin/customer in CreateUser",
+    "content": "Add pagination models and response types to backend",
     "status": "in_progress"
   },
   {
-    "content": "Create EditUser.jsx page",
+    "content": "Update backend endpoints: clients, projects, invoices, payments, users",
     "status": "pending"
   },
   {
-    "content": "Add Edit button to Users.jsx table",
+    "content": "Create reusable Pagination component for frontend",
     "status": "pending"
   },
   {
-    "content": "Update App.js routing for edit user",
+    "content": "Update Users.jsx with pagination",
     "status": "pending"
   },
   {
-    "content": "Test user update functionality",
+    "content": "Update Clients.jsx with pagination",
+    "status": "pending"
+  },
+  {
+    "content": "Update Projects.jsx with pagination",
+    "status": "pending"
+  },
+  {
+    "content": "Update Invoices.jsx with pagination",
+    "status": "pending"
+  },
+  {
+    "content": "Update Payments.jsx with pagination",
+    "status": "pending"
+  },
+  {
+    "content": "Test pagination across all pages",
     "status": "pending"
   }
 ]
