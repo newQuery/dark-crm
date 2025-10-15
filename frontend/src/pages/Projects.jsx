@@ -10,6 +10,7 @@ import { Label } from '../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
+import { Pagination } from '../components/Pagination';
 import { toast } from 'sonner';
 import api from '../lib/api';
 
@@ -22,6 +23,9 @@ export default function Projects() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [formData, setFormData] = useState({
     title: '',
     client_id: '',
@@ -33,12 +37,14 @@ export default function Projects() {
   useEffect(() => {
     fetchProjects();
     fetchClients();
-  }, []);
+  }, [currentPage]);
 
   const fetchProjects = async () => {
     try {
-      const response = await api.get('/projects');
-      setProjects(response.data);
+      const response = await api.get(`/projects?page=${currentPage}&page_size=10`);
+      setProjects(response.data.items);
+      setTotalPages(response.data.meta.total_pages);
+      setTotalItems(response.data.meta.total);
     } catch (error) {
       toast.error('Failed to fetch projects');
     } finally {
