@@ -89,7 +89,12 @@ export default function Users() {
               </TableRow>
             ) : users.length > 0 ? (
               users.map((user) => (
-                <TableRow key={user.id} className="border-[color:var(--border-default)] hover:bg-white/5" data-testid={`user-row-${user.id}`}>
+                <TableRow 
+                  key={user.id} 
+                  className="border-[color:var(--border-default)] hover:bg-white/5 transition-colors cursor-pointer" 
+                  data-testid={`user-row-${user.id}`}
+                  onClick={() => navigate(`/users/${user.id}`)}
+                >
                   <TableCell className="font-medium text-[color:var(--fg-primary)]">{user.name}</TableCell>
                   <TableCell className="text-[color:var(--fg-secondary)]">{user.email}</TableCell>
                   <TableCell>
@@ -100,14 +105,14 @@ export default function Users() {
                   <TableCell className="text-[color:var(--fg-secondary)]">
                     {new Date(user.created_at).toLocaleDateString()}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <div className="flex gap-2 justify-end">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => navigate(`/users/${user.id}`)}
                         data-testid={`view-user-${user.id}`}
-                        className="hover:bg-white/10"
+                        className="hover:bg-white/10 transition-colors"
                       >
                         <Eye size={16} />
                       </Button>
@@ -116,7 +121,7 @@ export default function Users() {
                         size="sm"
                         onClick={() => navigate(`/users/${user.id}/edit`)}
                         data-testid={`edit-user-${user.id}`}
-                        className="hover:bg-white/10"
+                        className="hover:bg-white/10 transition-colors"
                       >
                         <Edit size={16} />
                       </Button>
@@ -125,7 +130,7 @@ export default function Users() {
                         size="sm"
                         onClick={() => openDeleteDialog(user)}
                         data-testid={`delete-user-${user.id}`}
-                        className="hover:bg-red-500/10 text-[color:var(--error)]"
+                        className="hover:bg-red-500/10 text-[color:var(--error)] transition-colors"
                       >
                         <Trash2 size={16} />
                       </Button>
@@ -135,7 +140,21 @@ export default function Users() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-[color:var(--fg-secondary)]">No users found</TableCell>
+                <TableCell colSpan={5} className="p-0">
+                  <EmptyState
+                    icon={UserPlus}
+                    title="No users yet"
+                    description="Add team members to collaborate on projects and manage client relationships. Assign roles and permissions easily."
+                    action={
+                      <Button 
+                        onClick={() => navigate('/users/create')}
+                        className="bg-emerald-500 text-black hover:bg-emerald-400 font-medium gap-2"
+                      >
+                        <Plus size={16} /> Add User
+                      </Button>
+                    }
+                  />
+                </TableCell>
               </TableRow>
             )}
           </TableBody>
