@@ -4,6 +4,7 @@ import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
+import { Pagination } from '../components/Pagination';
 import { DollarSign, TrendingUp, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '../lib/api';
@@ -32,16 +33,21 @@ export default function Payments() {
   const [payments, setPayments] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
 
   useEffect(() => {
     fetchPayments();
     fetchTransactions();
-  }, []);
+  }, [currentPage]);
 
   const fetchPayments = async () => {
     try {
-      const response = await api.get('/payments');
-      setPayments(response.data);
+      const response = await api.get(`/payments?page=${currentPage}&page_size=10`);
+      setPayments(response.data.items);
+      setTotalPages(response.data.meta.total_pages);
+      setTotalItems(response.data.meta.total);
     } catch (error) {
       toast.error('Failed to fetch payments');
     } finally {
