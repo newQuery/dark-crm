@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card } from '../components/ui/card';
 import { Skeleton } from '../components/ui/skeleton';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { DollarSign, FolderKanban, Users2, TrendingUp } from 'lucide-react';
+import { DollarSign, FolderKanban, Users2, TrendingUp, BarChart3, TrendingUpIcon } from 'lucide-react';
 import api from '../lib/api';
 import { motion } from 'framer-motion';
 
