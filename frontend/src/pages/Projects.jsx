@@ -238,7 +238,12 @@ export default function Projects() {
               </TableRow>
             ) : projects.length > 0 ? (
               projects.map((project) => (
-                <TableRow key={project.id} className="border-[color:var(--border-default)] hover:bg-white/5" data-testid={`project-row-${project.id}`}>
+                <TableRow 
+                  key={project.id} 
+                  className="border-[color:var(--border-default)] hover:bg-white/5 transition-colors cursor-pointer" 
+                  data-testid={`project-row-${project.id}`}
+                  onClick={() => navigate(`/projects/${project.id}`)}
+                >
                   <TableCell className="font-medium text-[color:var(--fg-primary)]">{project.title}</TableCell>
                   <TableCell className="text-[color:var(--fg-secondary)]">{project.client_name || 'N/A'}</TableCell>
                   <TableCell>
@@ -250,14 +255,14 @@ export default function Projects() {
                   <TableCell className="text-[color:var(--fg-secondary)]">
                     {project.deadline ? new Date(project.deadline).toLocaleDateString() : 'No deadline'}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <div className="flex gap-2 justify-end">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => navigate(`/projects/${project.id}`)}
                         data-testid={`view-project-${project.id}`}
-                        className="hover:bg-white/10"
+                        className="hover:bg-white/10 transition-colors"
                       >
                         <Eye size={16} />
                       </Button>
@@ -266,7 +271,7 @@ export default function Projects() {
                         size="sm"
                         onClick={() => openEditDialog(project)}
                         data-testid={`edit-project-${project.id}`}
-                        className="hover:bg-white/10"
+                        className="hover:bg-white/10 transition-colors"
                       >
                         <Edit size={16} />
                       </Button>
@@ -275,7 +280,7 @@ export default function Projects() {
                         size="sm"
                         onClick={() => openDeleteDialog(project)}
                         data-testid={`delete-project-${project.id}`}
-                        className="hover:bg-red-500/10 text-[color:var(--error)]"
+                        className="hover:bg-red-500/10 text-[color:var(--error)] transition-colors"
                       >
                         <Trash2 size={16} />
                       </Button>
@@ -285,7 +290,21 @@ export default function Projects() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-[color:var(--fg-secondary)]">No projects found</TableCell>
+                <TableCell colSpan={6} className="p-0">
+                  <EmptyState
+                    icon={FolderKanban}
+                    title="No projects yet"
+                    description="Start managing your work by creating your first project. Assign clients, set deadlines, and track deliverables."
+                    action={
+                      <Button 
+                        onClick={() => setCreateDialogOpen(true)}
+                        className="bg-emerald-500 text-black hover:bg-emerald-400 font-medium gap-2"
+                      >
+                        <Plus size={16} /> Create Project
+                      </Button>
+                    }
+                  />
+                </TableCell>
               </TableRow>
             )}
           </TableBody>
