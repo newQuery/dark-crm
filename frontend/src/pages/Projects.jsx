@@ -54,8 +54,8 @@ export default function Projects() {
 
   const fetchClients = async () => {
     try {
-      const response = await api.get('/clients');
-      setClients(response.data);
+      const response = await api.get('/clients?page=1&page_size=1000');
+      setClients(response.data.items || response.data);
     } catch (error) {
       console.error('Failed to fetch clients:', error);
     }
