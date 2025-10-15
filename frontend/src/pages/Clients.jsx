@@ -247,6 +247,14 @@ export default function Clients() {
             )}
           </TableBody>
         </Table>
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </Card>
 
       {/* Edit Dialog */}
