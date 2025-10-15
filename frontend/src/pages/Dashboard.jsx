@@ -119,7 +119,7 @@ export default function Dashboard() {
           <div className="h-64 w-full" data-testid="revenue-bar-chart">
             {loading ? (
               <Skeleton className="h-full w-full" />
-            ) : (
+            ) : revenueData.length > 0 && revenueData.some(d => d.revenue > 0) ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={revenueData} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
                   <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="3 3" />
@@ -147,6 +147,12 @@ export default function Dashboard() {
                   <Bar dataKey="revenue" fill="var(--chart-revenue)" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-[color:var(--fg-secondary)]">
+                <BarChart3 size={48} className="mb-3 opacity-40" />
+                <p className="text-sm">No revenue data available</p>
+                <p className="text-xs mt-1 opacity-60">Revenue will appear once invoices are paid</p>
+              </div>
             )}
           </div>
         </Card>
@@ -156,7 +162,7 @@ export default function Dashboard() {
           <div className="h-64 w-full" data-testid="payments-line-chart">
             {loading ? (
               <Skeleton className="h-full w-full" />
-            ) : (
+            ) : paymentsData.length > 0 && paymentsData.some(d => d.amount > 0) ? (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={paymentsData} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
                   <defs>
@@ -197,6 +203,12 @@ export default function Dashboard() {
                   />
                 </LineChart>
               </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-[color:var(--fg-secondary)]">
+                <TrendingUpIcon size={48} className="mb-3 opacity-40" />
+                <p className="text-sm">No payment data available</p>
+                <p className="text-xs mt-1 opacity-60">Payment trends will appear as transactions are processed</p>
+              </div>
             )}
           </div>
         </Card>
