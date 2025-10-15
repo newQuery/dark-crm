@@ -107,6 +107,15 @@ export default function Users() {
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => navigate(`/users/${user.id}/edit`)}
+                        data-testid={`edit-user-${user.id}`}
+                        className="hover:bg-white/10"
+                      >
+                        <Edit size={16} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => openDeleteDialog(user)}
                         data-testid={`delete-user-${user.id}`}
                         className="hover:bg-red-500/10 text-[color:var(--error)]"
